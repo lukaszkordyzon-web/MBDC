@@ -82,24 +82,32 @@ else:
           if res.get("status") == "success":
             curr_data["files_parsed"]["xml"] = res
             st.success(f"✅ XML: {f.name} ({res['holes_count']} otworów)")
+          else:
+            st.error(f"❌ XML: {f.name} — {res.get('message')}")
 
         elif ext == "csv":
           res = parse_quarryx_csv(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["csv"] = res
             st.success(f"✅ CSV: {f.name} ({res['holes_count']} otworów)")
+          else:
+            st.error(f"❌ CSV: {f.name} — {res.get('message')}")
 
         elif ext == "txt":
           res = parse_txt_file(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["txt"] = res
             st.success(f"✅ TXT: {f.name} ({res['holes_count']} profili)")
+          else:
+            st.error(f"❌ TXT: {f.name} — {res.get('message')}")
 
         elif ext == "pdf":
           res = parse_detonator_pdf(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["pdf"] = res
             st.success(f"✅ PDF: {f.name}")
+          else:
+            st.error(f"❌ PDF: {f.name} — {res.get('message')}")
 
     if "xml" in curr_data["files_parsed"]:
       x = curr_data["files_parsed"]["xml"]
