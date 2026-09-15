@@ -97,7 +97,7 @@ def parse_quarryx_csv(csv_bytes):
     )
     lines = [l.strip() for l in text.strip().splitlines() if l.strip()]
     if not lines:
-      return {"status": "error", "message": "Pusty plik"}
+      return {"status": "error", "message": "Empty file"}
 
     first_line = lines[0]
     sep = "\t" if "\t" in first_line else ";"
@@ -170,7 +170,7 @@ def parse_quarryx_csv(csv_bytes):
 
 
 def parse_txt_file(txt_bytes):
-  """Parsuje pliki TXT wyciągając kluczowe metryki zabioru: Crest, Toe, Min, Max, Średnia oraz JSON profilu."""
+  """Parses TXT files extracting key burden metrics: Crest, Toe, Min, Max, Mean, and the profile JSON."""
   try:
     text = (
         txt_bytes.decode("utf-8", errors="ignore")
