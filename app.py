@@ -499,6 +499,38 @@ else:
     ax.grid(True, linestyle=":", alpha=0.3, color="#475569")
     st.pyplot(fig, width=700)
 
+  def build_database_table(design_df, actual_df):
+    """Combines the design/project dataframe with the design-only fields
+    (Explosives Design, Charge length design...) with the true-field
+    dataframe's actual-only fields (Explosives Actual, Charge length
+    actual...), matched per hole."""
+    actual_cols = [
+        "Explosives Actual",
+        "Charge length actual",
+        "Charge length actual without stemming",
+    ]
+
+    has_design = design_df is not None and not design_df.empty
+    has_actual = actual_df is not None and not actual_df.empty
+
+    if not has_design and not has_actual:
+      return None
+    if not has_design:
+      return actual_df.copy()
+
+    base = design_df.drop(
+        columns=[c for c in actual_cols if c in design_df.columns]
+    ).copy()
+
+    if has_actual:
+      present = [c for c in actual_cols if c in actual_df.columns]
+      if present:
+        base = base.merge(
+            actual_df[["Hole"] + present], on="Hole", how="outer"
+        )
+
+    return base
+
   st.markdown(f"### 📍 Project: `{curr_proj}`")
   st.divider()
 
@@ -689,7 +721,7 @@ else:
 
   # --- TAB 3: HOLE DATABASE (FULL TABLE) ---
   with tab_database:
-    master_df = build_master_dataframe(curr_data["files_parsed"])
+    master_df = build_database_table(project_master_df, field_master_df)
 
     with st.container(border=True):
       st.subheader("📊 Complex hole database")
