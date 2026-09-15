@@ -59,6 +59,27 @@ st.markdown(
       border-radius: 8px;
       font-weight: 600;
     }
+
+    .adc-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    .adc-badge-project {
+      background: rgba(124, 58, 237, 0.18);
+      color: #c4b5fd;
+      border: 1px solid rgba(124, 58, 237, 0.5);
+    }
+    .adc-badge-field {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -82,6 +103,9 @@ with st.sidebar.form("new_proj_form"):
           "design": {},
           "actual": {},
           "files_parsed": {},
+          "field_files_parsed": {},
+          "field_defaults": {},
+          "hole_overrides": {},
       }
       st.session_state.current_project = new_name
       st.sidebar.success(f"Created: **{new_name}**")
@@ -114,6 +138,11 @@ if not st.session_state.current_project:
 else:
   curr_proj = st.session_state.current_project
   curr_data = st.session_state.projects[curr_proj]
+  curr_data.setdefault("field_files_parsed", {})
+  curr_data.setdefault("field_defaults", {})
+  curr_data.setdefault("hole_overrides", {})
+
+  CHARGE_TYPE_OPTIONS = ["Bulk emulsion", "Bulk ANFO", "Cartridge", "Other"]
 
   st.markdown(f"### 📍 Project: `{curr_proj}`")
   st.divider()
@@ -122,7 +151,9 @@ else:
 
   # --- SECTION 1: PROJECT FILE UPLOAD ---
   with col1, st.container(border=True):
-    st.subheader("1️⃣ Project files (XML, CSV, TXT, PDF)")
+    st.markdown('<span class="adc-badge adc-badge-project">📁 Project Data</span>', unsafe_allow_html=True)
+    st.subheader("1️⃣ Project files")
+    st.caption("Add your project files in xml, csv, txt, pdf formats.")
     uploaded_files = st.file_uploader(
         "Upload project package",
         type=["xml", "csv", "txt", "pdf"],
@@ -182,13 +213,52 @@ else:
 
   # --- SECTION 2: AS-BUILT DATA ---
   with col2, st.container(border=True):
+    st.markdown('<span class="adc-badge adc-badge-field">📡 True Field Data</span>', unsafe_allow_html=True)
     st.subheader("2️⃣ Actual Data (MWD / As-Built)")
-    st.file_uploader(
+    st.caption("Here we add xml, csv, txt, pdf files captured in the field.")
+    field_files = st.file_uploader(
         "Load reports / MWD",
-        type=["txt", "csv", "pdf"],
+        type=["xml", "csv", "txt", "pdf"],
         accept_multiple_files=True,
         key=f"upl_act_{curr_proj}",
     )
+
+    if field_files:
+      for f in field_files:
+        f_bytes = f.read()
+        ext = f.name.split(".")[-1].lower()
+
+        if ext == "xml":
+          res = parse_iredes_xml(f_bytes)
+          if res.get("status") == "success":
+            curr_data["field_files_parsed"]["xml"] = res
+            st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
+          else:
+            st.error(f"❌ XML: {f.name} — {res.get('message')}")
+
+        elif ext == "csv":
+          res = parse_quarryx_csv(f_bytes)
+          if res.get("status") == "success":
+            curr_data["field_files_parsed"]["csv"] = res
+            st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
+          else:
+            st.error(f"❌ CSV: {f.name} — {res.get('message')}")
+
+        elif ext == "txt":
+          res = parse_txt_file(f_bytes)
+          if res.get("status") == "success":
+            curr_data["field_files_parsed"]["txt"] = res
+            st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
+          else:
+            st.error(f"❌ TXT: {f.name} — {res.get('message')}")
+
+        elif ext == "pdf":
+          res = parse_detonator_pdf(f_bytes)
+          if res.get("status") == "success":
+            curr_data["field_files_parsed"]["pdf"] = res
+            st.success(f"✅ PDF: {f.name}")
+          else:
+            st.error(f"❌ PDF: {f.name} — {res.get('message')}")
 
     with st.form("actual_form"):
       act_holes = st.number_input(
@@ -213,6 +283,43 @@ else:
             "notes": act_notes,
         }
         st.success("Saved!")
+
+    st.markdown("##### 💣 Default Charge Parameters (all holes)")
+    st.caption("Applied to every hole unless overridden in its Hole card.")
+    with st.form("field_defaults_form"):
+      fd_stemming = st.number_input(
+          "Stemming length [m]",
+          min_value=0.0,
+          value=curr_data["field_defaults"].get("stemming_length", 0.0),
+      )
+      fd_inter_stemming = st.number_input(
+          "Intermediate stemming length [m]",
+          min_value=0.0,
+          value=curr_data["field_defaults"].get(
+              "intermediate_stemming_length", 0.0
+          ),
+      )
+      fd_charge = st.number_input(
+          "Explosive charge [kg]",
+          min_value=0.0,
+          value=curr_data["field_defaults"].get("explosive_charge", 0.0),
+      )
+      fd_type = st.selectbox(
+          "Explosive type",
+          CHARGE_TYPE_OPTIONS,
+          index=CHARGE_TYPE_OPTIONS.index(
+              curr_data["field_defaults"].get("explosive_type", CHARGE_TYPE_OPTIONS[0])
+          ),
+      )
+
+      if st.form_submit_button("💾 Save defaults"):
+        curr_data["field_defaults"] = {
+            "stemming_length": fd_stemming,
+            "intermediate_stemming_length": fd_inter_stemming,
+            "explosive_charge": fd_charge,
+            "explosive_type": fd_type,
+        }
+        st.success("Default charge parameters saved!")
 
   # --- SECTION 3: HOLE DETAIL CARD + 2D CROSS-SECTION (PERPENDICULAR TO AXIS) ---
   st.divider()
@@ -346,6 +453,58 @@ else:
         with st.expander("📦 Full JSON record"):
           st.json(json.loads(raw_json))
 
+      st.markdown("#### 💣 Charge Parameters")
+      st.caption("Overrides the True Field Data defaults for this hole only.")
+      hole_key = str(sel_hole)
+      existing_override = curr_data["hole_overrides"].get(hole_key, {})
+      field_defaults = curr_data["field_defaults"]
+      with st.form(f"hole_charge_form_{hole_key}"):
+        hc_stemming = st.number_input(
+            "Stemming length [m]",
+            min_value=0.0,
+            value=existing_override.get(
+                "stemming_length", field_defaults.get("stemming_length", 0.0)
+            ),
+            key=f"hc_stem_{hole_key}",
+        )
+        hc_inter_stemming = st.number_input(
+            "Intermediate stemming length [m]",
+            min_value=0.0,
+            value=existing_override.get(
+                "intermediate_stemming_length",
+                field_defaults.get("intermediate_stemming_length", 0.0),
+            ),
+            key=f"hc_interstem_{hole_key}",
+        )
+        hc_charge = st.number_input(
+            "Explosive charge [kg]",
+            min_value=0.0,
+            value=existing_override.get(
+                "explosive_charge", field_defaults.get("explosive_charge", 0.0)
+            ),
+            key=f"hc_charge_{hole_key}",
+        )
+        hc_type = st.selectbox(
+            "Explosive type",
+            CHARGE_TYPE_OPTIONS,
+            index=CHARGE_TYPE_OPTIONS.index(
+                existing_override.get(
+                    "explosive_type",
+                    field_defaults.get("explosive_type", CHARGE_TYPE_OPTIONS[0]),
+                )
+            ),
+            key=f"hc_type_{hole_key}",
+        )
+
+        if st.form_submit_button("💾 Save for this hole"):
+          curr_data["hole_overrides"][hole_key] = {
+              "stemming_length": hc_stemming,
+              "intermediate_stemming_length": hc_inter_stemming,
+              "explosive_charge": hc_charge,
+              "explosive_type": hc_type,
+          }
+          st.success(f"Charge parameters saved for {hole_key}!")
+
     with card_right, st.container(border=True):
       st.markdown("#### 📉 2D Cross-Section with Perpendicular Dimensioning")
       raw_json = hole_row.get("Burden_Profile_JSON")
@@ -430,7 +589,7 @@ else:
         legend.get_frame().set_edgecolor("#475569")
         for text in legend.get_texts():
           text.set_color("#e2e8f0")
-        st.pyplot(fig)
+        st.pyplot(fig, width=700)
       else:
         st.info("No TXT burden profile available for this hole.")
 
