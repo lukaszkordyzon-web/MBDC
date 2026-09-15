@@ -709,6 +709,8 @@ else:
           else:
             st.error(f"❌ PDF: {f.name} — {res.get('message')}")
 
+    field_master_df = build_master_dataframe(curr_data["field_files_parsed"])
+
     with st.form("actual_form"):
       act_holes = st.number_input(
           "Real hole number",
@@ -761,17 +763,47 @@ else:
           ),
       )
 
-      if st.form_submit_button("💾 Save defaults"):
-        curr_data["field_defaults"] = {
-            "stemming_length": fd_stemming,
-            "intermediate_stemming_length": fd_inter_stemming,
-            "explosive_charge": fd_charge,
-            "explosive_type": fd_type,
-        }
+      field_hole_options = (
+          field_master_df["Hole"].tolist()
+          if field_master_df is not None and not field_master_df.empty
+          else []
+      )
+      if field_hole_options:
+        fd_target_hole = st.selectbox(
+            "Apply 'Save for this hole' to:", field_hole_options
+        )
+
+      fd_col1, fd_col2, fd_col3 = st.columns(3)
+      save_defaults = fd_col1.form_submit_button("💾 Save defaults")
+      save_this_hole = fd_col2.form_submit_button("🎯 Save for this hole")
+      save_all_holes = fd_col3.form_submit_button("📋 Save for all holes")
+
+      new_field_charge = {
+          "stemming_length": fd_stemming,
+          "intermediate_stemming_length": fd_inter_stemming,
+          "explosive_charge": fd_charge,
+          "explosive_type": fd_type,
+      }
+      field_overrides_ns = curr_data["hole_overrides"].setdefault("field", {})
+
+      if save_defaults:
+        curr_data["field_defaults"] = new_field_charge
         st.success("Default charge parameters saved!")
+      elif save_this_hole:
+        if field_hole_options:
+          field_overrides_ns[str(fd_target_hole)] = dict(new_field_charge)
+          st.success(f"Charge parameters saved for {fd_target_hole}!")
+        else:
+          st.warning("Upload field files first to select a hole.")
+      elif save_all_holes:
+        if field_hole_options:
+          for h in field_hole_options:
+            field_overrides_ns[str(h)] = dict(new_field_charge)
+          st.success(f"Charge parameters saved for all {len(field_hole_options)} holes!")
+        else:
+          st.warning("Upload field files first — no holes to save to yet.")
 
     st.divider()
-    field_master_df = build_master_dataframe(curr_data["field_files_parsed"])
     render_hole_card(field_master_df, key_prefix="field")
 
   # --- TAB 3: HOLE DATABASE (FULL TABLE) ---
