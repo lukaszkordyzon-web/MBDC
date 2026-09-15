@@ -307,7 +307,8 @@ else:
       st.markdown("#### 💣 Charge Parameters")
       st.caption("Overrides the True Field Data defaults for this hole only.")
       hole_key = str(sel_hole)
-      existing_override = curr_data["hole_overrides"].get(hole_key, {})
+      overrides_ns = curr_data["hole_overrides"].setdefault(key_prefix, {})
+      existing_override = overrides_ns.get(hole_key, {})
       field_defaults = curr_data["field_defaults"]
       with st.form(f"hole_charge_form_{key_prefix}_{hole_key}"):
         hc_stemming = st.number_input(
@@ -358,11 +359,11 @@ else:
             "explosive_type": hc_type,
         }
         if save_this:
-          curr_data["hole_overrides"][hole_key] = new_charge
+          overrides_ns[hole_key] = new_charge
           st.success(f"Charge parameters saved for {hole_key}!")
         elif save_all:
           for h in hole_list:
-            curr_data["hole_overrides"][str(h)] = dict(new_charge)
+            overrides_ns[str(h)] = dict(new_charge)
           st.success(f"Charge parameters saved for all {len(hole_list)} holes!")
 
     with card_right, st.container(border=True):
@@ -500,10 +501,14 @@ else:
     st.pyplot(fig, width=700)
 
   def build_database_table(design_df, actual_df):
-    """Combines the design/project dataframe with the design-only fields
+    """Combines the design/project dataframe's design-only fields
     (Explosives Design, Charge length design...) with the true-field
     dataframe's actual-only fields (Explosives Actual, Charge length
-    actual...), matched per hole."""
+    actual...), matched per hole. Manually entered Charge Parameters
+    (from each tab's Hole card) fill in Explosives Design/Actual when
+    the uploaded files left them empty or zero, and always supply the
+    Stemming length / Explosive type columns, which have no file-based
+    source."""
     actual_cols = [
         "Explosives Actual",
         "Charge length actual",
@@ -515,19 +520,69 @@ else:
 
     if not has_design and not has_actual:
       return None
-    if not has_design:
-      return actual_df.copy()
 
-    base = design_df.drop(
-        columns=[c for c in actual_cols if c in design_df.columns]
-    ).copy()
+    if has_design:
+      base = design_df.drop(
+          columns=[c for c in actual_cols if c in design_df.columns]
+      ).copy()
+    else:
+      base = actual_df[["Hole"]].drop_duplicates().copy()
 
     if has_actual:
       present = [c for c in actual_cols if c in actual_df.columns]
-      if present:
-        base = base.merge(
-            actual_df[["Hole"] + present], on="Hole", how="outer"
-        )
+      actual_subset = (
+          actual_df[["Hole"] + present] if present else actual_df[["Hole"]]
+      )
+      base = base.merge(actual_subset, on="Hole", how="outer")
+
+    for col in ("Explosives Design", "Explosives Actual"):
+      if col not in base.columns:
+        base[col] = pd.NA
+
+    proj_overrides = curr_data["hole_overrides"].get("proj", {})
+    field_overrides = curr_data["hole_overrides"].get("field", {})
+
+    def filled_explosive_mass(row, col, overrides):
+      val = row.get(col)
+      if pd.notna(val) and float(val) != 0:
+        return val
+      override = overrides.get(str(row.get("Hole")))
+      if override and override.get("explosive_charge"):
+        return override["explosive_charge"]
+      return val
+
+    def override_value(overrides, field):
+      return lambda row: overrides.get(str(row.get("Hole")), {}).get(field)
+
+    if proj_overrides:
+      base["Explosives Design"] = base.apply(
+          lambda r: filled_explosive_mass(r, "Explosives Design", proj_overrides),
+          axis=1,
+      )
+      base["Stemming Length Design [m]"] = base.apply(
+          override_value(proj_overrides, "stemming_length"), axis=1
+      )
+      base["Intermediate Stemming Design [m]"] = base.apply(
+          override_value(proj_overrides, "intermediate_stemming_length"), axis=1
+      )
+      base["Explosive Type Design"] = base.apply(
+          override_value(proj_overrides, "explosive_type"), axis=1
+      )
+
+    if field_overrides:
+      base["Explosives Actual"] = base.apply(
+          lambda r: filled_explosive_mass(r, "Explosives Actual", field_overrides),
+          axis=1,
+      )
+      base["Stemming Length Actual [m]"] = base.apply(
+          override_value(field_overrides, "stemming_length"), axis=1
+      )
+      base["Intermediate Stemming Actual [m]"] = base.apply(
+          override_value(field_overrides, "intermediate_stemming_length"), axis=1
+      )
+      base["Explosive Type Actual"] = base.apply(
+          override_value(field_overrides, "explosive_type"), axis=1
+      )
 
     return base
 
