@@ -235,12 +235,14 @@ else:
           f"Collar: `{val_x}, {val_y}, {val_z}`  •  Bottom:"
           f" `{val_bx}, {val_by}, {val_bz}`"
       )
-      m1, m2 = st.columns(2)
+      m1, m2, m3 = st.columns(3)
       m1.metric("Length", f"{val_len} m")
       m2.metric("Diameter", f"{val_dia} mm")
-      m3, m4 = st.columns(2)
-      m3.metric("Angle / Azimuth", f"{val_ang}° / {val_az}°")
-      m4.metric("Delay / Explosive mass", f"{val_deck} ms / {val_exp} kg")
+      m3.metric("Angle", f"{val_ang}°")
+      m4, m5, m6 = st.columns(3)
+      m4.metric("Azimuth", f"{val_az}°")
+      m5.metric("Delay", f"{val_deck} ms")
+      m6.metric("Explosive mass", f"{val_exp} kg")
 
       st.markdown("#### 📊 Burden Analytics")
       b1, b2, b3 = st.columns(3)
@@ -313,14 +315,23 @@ else:
             key=f"hc_type_{key_prefix}_{hole_key}",
         )
 
-        if st.form_submit_button("💾 Save for this hole"):
-          curr_data["hole_overrides"][hole_key] = {
-              "stemming_length": hc_stemming,
-              "intermediate_stemming_length": hc_inter_stemming,
-              "explosive_charge": hc_charge,
-              "explosive_type": hc_type,
-          }
+        save_col1, save_col2 = st.columns(2)
+        save_this = save_col1.form_submit_button("💾 Save for this hole")
+        save_all = save_col2.form_submit_button("📋 Save for all holes")
+
+        new_charge = {
+            "stemming_length": hc_stemming,
+            "intermediate_stemming_length": hc_inter_stemming,
+            "explosive_charge": hc_charge,
+            "explosive_type": hc_type,
+        }
+        if save_this:
+          curr_data["hole_overrides"][hole_key] = new_charge
           st.success(f"Charge parameters saved for {hole_key}!")
+        elif save_all:
+          for h in hole_list:
+            curr_data["hole_overrides"][str(h)] = dict(new_charge)
+          st.success(f"Charge parameters saved for all {len(hole_list)} holes!")
 
     with card_right, st.container(border=True):
       st.markdown("#### 📉 2D Cross-Section with Perpendicular Dimensioning")
@@ -379,7 +390,7 @@ else:
             ax.plot(
                 [hx, fx],
                 [hz, fz],
-                color="#0284c7",
+                color="#fbbf24",
                 linestyle=":",
                 linewidth=1.3,
             )
@@ -389,7 +400,7 @@ else:
                 mid_x,
                 mid_z + 0.12,
                 f"{b:.2f} m",
-                color="#0369a1",
+                color="#fbbf24",
                 fontsize=7.5,
                 ha="center",
                 va="bottom",
@@ -409,6 +420,52 @@ else:
         st.pyplot(fig, width=700)
       else:
         st.info("No TXT burden profile available for this hole.")
+
+  def render_pattern_plan(df):
+    """Draws a dotted plan-view scatter of every hole's collar position."""
+    if df is None or df.empty:
+      return
+
+    xs, ys, labels = [], [], []
+    for _, row in df.iterrows():
+      x_val = row.get("X") if pd.notna(row.get("X")) else row.get("XML_StartX")
+      y_val = row.get("Y") if pd.notna(row.get("Y")) else row.get("XML_StartY")
+      if pd.notna(x_val) and pd.notna(y_val):
+        xs.append(float(x_val))
+        ys.append(float(y_val))
+        labels.append(str(row.get("Hole")))
+
+    if not xs:
+      return
+
+    st.markdown("#### 🗺️ Blast Pattern Plan View")
+    fig, ax = plt.subplots(figsize=(6, 5))
+    fig.patch.set_facecolor("#0f172a")
+    ax.set_facecolor("#1e293b")
+    ax.tick_params(colors="#e2e8f0")
+    ax.xaxis.label.set_color("#e2e8f0")
+    ax.yaxis.label.set_color("#e2e8f0")
+    for spine in ax.spines.values():
+      spine.set_color("#475569")
+
+    ax.scatter(
+        xs, ys, color="#fbbf24", s=70, edgecolors="#7c3aed", linewidths=1.4, zorder=3
+    )
+    for x_val, y_val, label in zip(xs, ys, labels):
+      ax.annotate(
+          label,
+          (x_val, y_val),
+          textcoords="offset points",
+          xytext=(6, 6),
+          fontsize=7.5,
+          color="#e2e8f0",
+      )
+
+    ax.set_xlabel("X [m]", fontsize=9)
+    ax.set_ylabel("Y [m]", fontsize=9)
+    ax.set_aspect("equal", adjustable="datalim")
+    ax.grid(True, linestyle=":", alpha=0.3, color="#475569")
+    st.pyplot(fig, width=700)
 
   st.markdown(f"### 📍 Project: `{curr_proj}`")
   st.divider()
@@ -465,6 +522,8 @@ else:
           else:
             st.error(f"❌ PDF: {f.name} — {res.get('message')}")
 
+    project_master_df = build_master_dataframe(curr_data["files_parsed"])
+
     if "xml" in curr_data["files_parsed"]:
       x = curr_data["files_parsed"]["xml"]
       st.markdown("#### ℹ️ Project metadata (from XML file)")
@@ -478,8 +537,9 @@ else:
           f" **{x.get('cubic_mass_m3'):,.1f} m³**"
       )
 
+    render_pattern_plan(project_master_df)
+
     st.divider()
-    project_master_df = build_master_dataframe(curr_data["files_parsed"])
     render_hole_card(project_master_df, key_prefix="proj")
 
   # --- TAB 2: AS-BUILT / TRUE FIELD DATA ---
