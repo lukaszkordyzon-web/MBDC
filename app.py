@@ -44,11 +44,42 @@ st.markdown(
       font-size: 0.95rem;
     }
 
+    /* --- Consistent type scale: section (h3) > subsection (h4) --- */
+    h3 {
+      font-size: 1.25rem !important;
+      font-weight: 700 !important;
+      margin-top: 0.25rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+    h4 {
+      font-size: 1.0rem !important;
+      font-weight: 700 !important;
+      margin-top: 0.25rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+
+    /* --- Metrics: smaller, uniform, never truncated --- */
     div[data-testid="stMetric"] {
       background: rgba(139, 92, 246, 0.08);
       border: 1px solid rgba(139, 92, 246, 0.25);
-      border-radius: 12px;
-      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    div[data-testid="stMetricValue"] {
+      font-size: 1.3rem !important;
+      white-space: normal !important;
+      overflow-wrap: break-word;
+      line-height: 1.25 !important;
+    }
+    div[data-testid="stMetricLabel"] {
+      font-size: 0.78rem !important;
+      opacity: 0.75;
+    }
+
+    /* --- Consistent gap between cards/sections --- */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+      margin-bottom: 1rem;
     }
 
     section[data-testid="stSidebar"] .stButton button,
@@ -235,22 +266,22 @@ else:
           f"Collar: `{val_x}, {val_y}, {val_z}`  •  Bottom:"
           f" `{val_bx}, {val_by}, {val_bz}`"
       )
-      m1, m2, m3 = st.columns(3)
+      m1, m2 = st.columns(2)
       m1.metric("Length", f"{val_len} m")
       m2.metric("Diameter", f"{val_dia} mm")
+      m3, m4 = st.columns(2)
       m3.metric("Angle", f"{val_ang}°")
-      m4, m5, m6 = st.columns(3)
       m4.metric("Azimuth", f"{val_az}°")
+      m5, m6 = st.columns(2)
       m5.metric("Delay", f"{val_deck} ms")
       m6.metric("Explosive mass", f"{val_exp} kg")
 
       st.markdown("#### 📊 Burden Analytics")
-      b1, b2, b3 = st.columns(3)
+      b1, b2 = st.columns(2)
       b1.metric("Crest burden", f"{hole_row.get('Crest_Burden_m', 'None')} m")
       b2.metric("Toe burden", f"{hole_row.get('Toe_Burden_m', 'None')} m")
-      b3.metric("Mean burden", f"{hole_row.get('Mean_Burden_m', 'None')} m")
-      b4, b5 = st.columns(2)
-      b4.metric(
+      b3, b4 = st.columns(2)
+      b3.metric(
           "Min. burden",
           f"{hole_row.get('Min_Burden_m', 'None')} m",
           help=(
@@ -258,7 +289,7 @@ else:
               f" {hole_row.get('Min_Burden_Depth_m', '-')} m"
           ),
       )
-      b5.metric(
+      b4.metric(
           "Max. burden",
           f"{hole_row.get('Max_Burden_m', 'None')} m",
           help=(
@@ -266,6 +297,7 @@ else:
               f" {hole_row.get('Max_Burden_Depth_m', '-')} m"
           ),
       )
+      st.metric("Mean burden", f"{hole_row.get('Mean_Burden_m', 'None')} m")
 
       raw_json = hole_row.get("Burden_Profile_JSON")
       if pd.notna(raw_json) and raw_json:
@@ -614,7 +646,7 @@ else:
         }
         st.success("Saved!")
 
-    st.markdown("##### 💣 Default Charge Parameters (all holes)")
+    st.markdown("#### 💣 Default Charge Parameters (all holes)")
     st.caption("Applied to every hole unless overridden in its Hole card.")
     with st.form("field_defaults_form"):
       fd_stemming = st.number_input(
