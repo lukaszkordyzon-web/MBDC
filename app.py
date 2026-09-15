@@ -127,7 +127,6 @@ with st.sidebar.form("new_proj_form"):
           "actual": {},
           "files_parsed": {},
           "field_files_parsed": {},
-          "field_defaults": {},
           "hole_overrides": {},
       }
       st.session_state.current_project = new_name
@@ -162,7 +161,6 @@ else:
   curr_proj = st.session_state.current_project
   curr_data = st.session_state.projects[curr_proj]
   curr_data.setdefault("field_files_parsed", {})
-  curr_data.setdefault("field_defaults", {})
   curr_data.setdefault("hole_overrides", {})
 
   CHARGE_TYPE_OPTIONS = ["Bulk emulsion", "Bulk ANFO", "Cartridge", "Other"]
@@ -309,41 +307,30 @@ else:
       hole_key = str(sel_hole)
       overrides_ns = curr_data["hole_overrides"].setdefault(key_prefix, {})
       existing_override = overrides_ns.get(hole_key, {})
-      field_defaults = curr_data["field_defaults"]
       with st.form(f"hole_charge_form_{key_prefix}_{hole_key}"):
         hc_stemming = st.number_input(
             "Stemming length [m]",
             min_value=0.0,
-            value=existing_override.get(
-                "stemming_length", field_defaults.get("stemming_length", 0.0)
-            ),
+            value=existing_override.get("stemming_length", 0.0),
             key=f"hc_stem_{key_prefix}_{hole_key}",
         )
         hc_inter_stemming = st.number_input(
             "Intermediate stemming length [m]",
             min_value=0.0,
-            value=existing_override.get(
-                "intermediate_stemming_length",
-                field_defaults.get("intermediate_stemming_length", 0.0),
-            ),
+            value=existing_override.get("intermediate_stemming_length", 0.0),
             key=f"hc_interstem_{key_prefix}_{hole_key}",
         )
         hc_charge = st.number_input(
             "Explosive charge [kg]",
             min_value=0.0,
-            value=existing_override.get(
-                "explosive_charge", field_defaults.get("explosive_charge", 0.0)
-            ),
+            value=existing_override.get("explosive_charge", 0.0),
             key=f"hc_charge_{key_prefix}_{hole_key}",
         )
         hc_type = st.selectbox(
             "Explosive type",
             CHARGE_TYPE_OPTIONS,
             index=CHARGE_TYPE_OPTIONS.index(
-                existing_override.get(
-                    "explosive_type",
-                    field_defaults.get("explosive_type", CHARGE_TYPE_OPTIONS[0]),
-                )
+                existing_override.get("explosive_type", CHARGE_TYPE_OPTIONS[0])
             ),
             key=f"hc_type_{key_prefix}_{hole_key}",
         )
@@ -735,33 +722,17 @@ else:
         }
         st.success("Saved!")
 
-    st.markdown("#### 💣 Default Charge Parameters (all holes)")
-    st.caption("Applied to every hole unless overridden in its Hole card.")
-    with st.form("field_defaults_form"):
-      fd_stemming = st.number_input(
-          "Stemming length [m]",
-          min_value=0.0,
-          value=curr_data["field_defaults"].get("stemming_length", 0.0),
-      )
+    st.markdown("#### 💣 Charge Parameters (bulk entry)")
+    st.caption("Fill in once, then save it to a single hole or every hole.")
+    with st.form("field_bulk_charge_form"):
+      fd_stemming = st.number_input("Stemming length [m]", min_value=0.0, value=0.0)
       fd_inter_stemming = st.number_input(
-          "Intermediate stemming length [m]",
-          min_value=0.0,
-          value=curr_data["field_defaults"].get(
-              "intermediate_stemming_length", 0.0
-          ),
+          "Intermediate stemming length [m]", min_value=0.0, value=0.0
       )
       fd_charge = st.number_input(
-          "Explosive charge [kg]",
-          min_value=0.0,
-          value=curr_data["field_defaults"].get("explosive_charge", 0.0),
+          "Explosive charge [kg]", min_value=0.0, value=0.0
       )
-      fd_type = st.selectbox(
-          "Explosive type",
-          CHARGE_TYPE_OPTIONS,
-          index=CHARGE_TYPE_OPTIONS.index(
-              curr_data["field_defaults"].get("explosive_type", CHARGE_TYPE_OPTIONS[0])
-          ),
-      )
+      fd_type = st.selectbox("Explosive type", CHARGE_TYPE_OPTIONS)
 
       field_hole_options = (
           field_master_df["Hole"].tolist()
@@ -773,10 +744,9 @@ else:
             "Apply 'Save for this hole' to:", field_hole_options
         )
 
-      fd_col1, fd_col2, fd_col3 = st.columns(3)
-      save_defaults = fd_col1.form_submit_button("💾 Save defaults")
-      save_this_hole = fd_col2.form_submit_button("🎯 Save for this hole")
-      save_all_holes = fd_col3.form_submit_button("📋 Save for all holes")
+      fd_col1, fd_col2 = st.columns(2)
+      save_this_hole = fd_col1.form_submit_button("💾 Save for this hole")
+      save_all_holes = fd_col2.form_submit_button("📋 Save for all holes")
 
       new_field_charge = {
           "stemming_length": fd_stemming,
@@ -786,10 +756,7 @@ else:
       }
       field_overrides_ns = curr_data["hole_overrides"].setdefault("field", {})
 
-      if save_defaults:
-        curr_data["field_defaults"] = new_field_charge
-        st.success("Default charge parameters saved!")
-      elif save_this_hole:
+      if save_this_hole:
         if field_hole_options:
           field_overrides_ns[str(fd_target_hole)] = dict(new_field_charge)
           st.success(f"Charge parameters saved for {fd_target_hole}!")
