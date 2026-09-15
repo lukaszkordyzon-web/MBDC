@@ -12,7 +12,56 @@ from parsers import (
 import streamlit as st
 
 st.set_page_config(
-    page_title="Multiple Blast Data", page_icon="⛏️", layout="wide"
+    page_title="AutoDataCollector", page_icon="🛰️", layout="wide"
+)
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .adc-hero {
+      background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #06b6d4 100%);
+      padding: 1.75rem 2rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+    }
+    .adc-hero h1 {
+      color: white;
+      margin: 0;
+      font-weight: 800;
+      font-size: 2.1rem;
+      letter-spacing: -0.02em;
+    }
+    .adc-hero p {
+      color: rgba(255, 255, 255, 0.85);
+      margin: 0.35rem 0 0 0;
+      font-size: 0.95rem;
+    }
+
+    div[data-testid="stMetric"] {
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      border-radius: 12px;
+      padding: 0.75rem 0.9rem;
+    }
+
+    section[data-testid="stSidebar"] .stButton button,
+    div.stForm button {
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 if "projects" not in st.session_state:
@@ -22,7 +71,8 @@ if "current_project" not in st.session_state:
   st.session_state.current_project = None
 
 # --- SIDEBAR: PROJECT MANAGEMENT ---
-st.sidebar.title("🗂️ Multiple Blast Projects")
+st.sidebar.title("🛰️ AutoDataCollector")
+st.sidebar.caption("Blast & drilling data aggregation")
 
 with st.sidebar.form("new_proj_form"):
   new_name = st.text_input("Project name")
@@ -49,7 +99,15 @@ if st.session_state.projects:
   )
 
 # --- MAIN PANEL ---
-st.title("⛏️ Multiple Blast Data")
+st.markdown(
+    """
+    <div class="adc-hero">
+      <h1>🛰️ AutoDataCollector</h1>
+      <p>Aggregate drill plans, MWD reports and detonator logs into one blast database.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if not st.session_state.current_project:
   st.info("👈 Select or create a project in the sidebar.")
@@ -63,7 +121,7 @@ else:
   col1, col2 = st.columns(2)
 
   # --- SECTION 1: PROJECT FILE UPLOAD ---
-  with col1:
+  with col1, st.container(border=True):
     st.subheader("1️⃣ Project files (XML, CSV, TXT, PDF)")
     uploaded_files = st.file_uploader(
         "Upload project package",
@@ -123,7 +181,7 @@ else:
       )
 
   # --- SECTION 2: AS-BUILT DATA ---
-  with col2:
+  with col2, st.container(border=True):
     st.subheader("2️⃣ Actual Data (MWD / As-Built)")
     st.file_uploader(
         "Load reports / MWD",
@@ -247,45 +305,40 @@ else:
 
     card_left, card_right = st.columns([1, 1.2])
 
-    with card_left:
+    with card_left, st.container(border=True):
       st.markdown("#### 📐 Hole Parameters")
-      st.write(
-          f"- **Collar coordinates (X, Y, Z):** `{val_x}`, `{val_y}`, `{val_z}`"
+      st.caption(
+          f"Collar: `{val_x}, {val_y}, {val_z}`  •  Bottom:"
+          f" `{val_bx}, {val_by}, {val_bz}`"
       )
-      st.write(
-          "- **Bottom coordinates (BottomX, Y, Z):**"
-          f" `{val_bx}`, `{val_by}`, `{val_bz}`"
-      )
-      st.write(
-          f"- **Length:** `{val_len} m` | **Diameter:** `{val_dia} mm` |"
-          f" **Angle / Azimuth:** `{val_ang}° / {val_az}°`"
-      )
-      st.write(
-          f"- **Delay:** `{val_deck} ms` | **Explosive mass:** `{val_exp} kg`"
-      )
+      m1, m2 = st.columns(2)
+      m1.metric("Length", f"{val_len} m")
+      m2.metric("Diameter", f"{val_dia} mm")
+      m3, m4 = st.columns(2)
+      m3.metric("Angle / Azimuth", f"{val_ang}° / {val_az}°")
+      m4.metric("Delay / Explosive mass", f"{val_deck} ms / {val_exp} kg")
 
       st.markdown("#### 📊 Burden Analytics")
-      st.write(
-          "- **Crest burden:**"
-          f" `{hole_row.get('Crest_Burden_m', 'None')} m`"
+      b1, b2, b3 = st.columns(3)
+      b1.metric("Crest burden", f"{hole_row.get('Crest_Burden_m', 'None')} m")
+      b2.metric("Toe burden", f"{hole_row.get('Toe_Burden_m', 'None')} m")
+      b3.metric("Mean burden", f"{hole_row.get('Mean_Burden_m', 'None')} m")
+      b4, b5 = st.columns(2)
+      b4.metric(
+          "Min. burden",
+          f"{hole_row.get('Min_Burden_m', 'None')} m",
+          help=(
+              "Depth:"
+              f" {hole_row.get('Min_Burden_Depth_m', '-')} m"
+          ),
       )
-      st.write(
-          "- **Toe burden:**"
-          f" `{hole_row.get('Toe_Burden_m', 'None')} m`"
-      )
-      st.write(
-          "- **Min. burden:**"
-          f" `{hole_row.get('Min_Burden_m', 'None')} m` (depth:"
-          f" `{hole_row.get('Min_Burden_Depth_m', '-')} m`)"
-      )
-      st.write(
-          "- **Max. burden:**"
-          f" `{hole_row.get('Max_Burden_m', 'None')} m` (depth:"
-          f" `{hole_row.get('Max_Burden_Depth_m', '-')} m`)"
-      )
-      st.write(
-          "- **Mean hole burden:**"
-          f" `{hole_row.get('Mean_Burden_m', 'None')} m`"
+      b5.metric(
+          "Max. burden",
+          f"{hole_row.get('Max_Burden_m', 'None')} m",
+          help=(
+              "Depth:"
+              f" {hole_row.get('Max_Burden_Depth_m', '-')} m"
+          ),
       )
 
       raw_json = hole_row.get("Burden_Profile_JSON")
@@ -293,7 +346,7 @@ else:
         with st.expander("📦 Full JSON record"):
           st.json(json.loads(raw_json))
 
-    with card_right:
+    with card_right, st.container(border=True):
       st.markdown("#### 📉 2D Cross-Section with Perpendicular Dimensioning")
       raw_json = hole_row.get("Burden_Profile_JSON")
       if pd.notna(raw_json) and raw_json:
@@ -311,6 +364,13 @@ else:
         face_z = hole_z + np.array(burdens) * np.sin(ang_rad)
 
         fig, ax = plt.subplots(figsize=(5.5, 7.5))
+        fig.patch.set_facecolor("#0f172a")
+        ax.set_facecolor("#1e293b")
+        ax.tick_params(colors="#e2e8f0")
+        ax.xaxis.label.set_color("#e2e8f0")
+        ax.yaxis.label.set_color("#e2e8f0")
+        for spine in ax.spines.values():
+          spine.set_color("#475569")
         ax.plot(
             hole_x,
             hole_z,
@@ -364,39 +424,42 @@ else:
         ax.set_xlabel("Horizontal distance [m]", fontsize=9)
         ax.set_ylabel("Vertical elevation (downward) [m]", fontsize=9)
         ax.set_aspect("equal", adjustable="box")
-        ax.grid(True, linestyle=":", alpha=0.6)
-        ax.legend(loc="lower right", fontsize=8)
+        ax.grid(True, linestyle=":", alpha=0.3, color="#475569")
+        legend = ax.legend(loc="lower right", fontsize=8)
+        legend.get_frame().set_facecolor("#1e293b")
+        legend.get_frame().set_edgecolor("#475569")
+        for text in legend.get_texts():
+          text.set_color("#e2e8f0")
         st.pyplot(fig)
       else:
         st.info("No TXT burden profile available for this hole.")
 
   # --- SECTION 4: MAIN DATABASE TABLE ---
   st.divider()
-  st.subheader(
-      "📊 Complex hole database"
-  )
+  with st.container(border=True):
+    st.subheader("📊 Complex hole database")
 
-  if master_df is not None and not master_df.empty:
-    col_search, col_export = st.columns([3, 1])
-    with col_search:
-      query = st.text_input("🔎 Filter hole database")
+    if master_df is not None and not master_df.empty:
+      col_search, col_export = st.columns([3, 1])
+      with col_search:
+        query = st.text_input("🔎 Filter hole database")
 
-    view_df = master_df
-    if query:
-      view_df = master_df[
-          master_df.astype(str)
-          .apply(lambda row: row.str.contains(query, case=False).any(), axis=1)
-      ]
+      view_df = master_df
+      if query:
+        view_df = master_df[
+            master_df.astype(str)
+            .apply(lambda row: row.str.contains(query, case=False).any(), axis=1)
+        ]
 
-    st.dataframe(view_df, use_container_width=True, height=450)
+      st.dataframe(view_df, use_container_width=True, height=450)
 
-    with col_export:
-      csv_bytes = master_df.to_csv(index=False).encode("utf-8")
-      st.download_button(
-          label="📥 Export Full Database with JSON (.CSV)",
-          data=csv_bytes,
-          file_name=f"{curr_proj}_Master_Blast_DB.csv",
-          mime="text/csv",
-      )
-  else:
-    st.info("ℹ️ Upload project files to generate the hole database.")
+      with col_export:
+        csv_bytes = master_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Export Full Database with JSON (.CSV)",
+            data=csv_bytes,
+            file_name=f"{curr_proj}_Master_Blast_DB.csv",
+            mime="text/csv",
+        )
+    else:
+      st.info("ℹ️ Upload project files to generate the hole database.")
