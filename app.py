@@ -303,7 +303,7 @@ else:
           st.json(json.loads(raw_json))
 
       st.markdown("#### 💣 Charge Parameters")
-      st.caption("Overrides the True Field Data defaults for this hole only.")
+      st.caption("Manual Adjustment (in case data is missing)")
       hole_key = str(sel_hole)
       overrides_ns = curr_data["hole_overrides"].setdefault(key_prefix, {})
       existing_override = overrides_ns.get(hole_key, {})
@@ -698,6 +698,8 @@ else:
 
     field_master_df = build_master_dataframe(curr_data["field_files_parsed"])
 
+    st.markdown("#### 📝 Real Hole Data")
+    st.caption("Manual Adjustment (in case data is missing)")
     with st.form("actual_form"):
       act_holes = st.number_input(
           "Real hole number",
