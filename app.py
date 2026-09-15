@@ -77,6 +77,14 @@ st.markdown(
       opacity: 0.75;
     }
 
+    .adc-subsection {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0.25rem 0 0.5rem 0.75rem;
+      padding-left: 0.75rem;
+      border-left: 3px solid #8b5cf6;
+    }
+
     /* --- Consistent gap between cards/sections --- */
     div[data-testid="stVerticalBlockBorderWrapper"] {
       margin-bottom: 1rem;
@@ -649,128 +657,134 @@ else:
     render_hole_card(project_master_df, key_prefix="proj")
 
   # --- TAB 2: AS-BUILT / TRUE FIELD DATA ---
-  with tab_field, st.container(border=True):
+  with tab_field:
     st.subheader("📡 True Field Data")
-    st.caption("Here we add xml, csv, txt, pdf files captured in the field.")
-    field_files = st.file_uploader(
-        "Load reports / MWD",
-        type=["xml", "csv", "txt", "pdf"],
-        accept_multiple_files=True,
-        key=f"upl_act_{curr_proj}",
-    )
 
-    if field_files:
-      for f in field_files:
-        f_bytes = f.read()
-        ext = f.name.split(".")[-1].lower()
+    with st.container(border=True):
+      st.caption("Here we add xml, csv, txt, pdf files captured in the field.")
+      field_files = st.file_uploader(
+          "Load reports / MWD",
+          type=["xml", "csv", "txt", "pdf"],
+          accept_multiple_files=True,
+          key=f"upl_act_{curr_proj}",
+      )
 
-        if ext == "xml":
-          res = parse_iredes_xml(f_bytes)
-          if res.get("status") == "success":
-            curr_data["field_files_parsed"]["xml"] = res
-            st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
-          else:
-            st.error(f"❌ XML: {f.name} — {res.get('message')}")
+      if field_files:
+        for f in field_files:
+          f_bytes = f.read()
+          ext = f.name.split(".")[-1].lower()
 
-        elif ext == "csv":
-          res = parse_quarryx_csv(f_bytes)
-          if res.get("status") == "success":
-            curr_data["field_files_parsed"]["csv"] = res
-            st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
-          else:
-            st.error(f"❌ CSV: {f.name} — {res.get('message')}")
+          if ext == "xml":
+            res = parse_iredes_xml(f_bytes)
+            if res.get("status") == "success":
+              curr_data["field_files_parsed"]["xml"] = res
+              st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
+            else:
+              st.error(f"❌ XML: {f.name} — {res.get('message')}")
 
-        elif ext == "txt":
-          res = parse_txt_file(f_bytes)
-          if res.get("status") == "success":
-            curr_data["field_files_parsed"]["txt"] = res
-            st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
-          else:
-            st.error(f"❌ TXT: {f.name} — {res.get('message')}")
+          elif ext == "csv":
+            res = parse_quarryx_csv(f_bytes)
+            if res.get("status") == "success":
+              curr_data["field_files_parsed"]["csv"] = res
+              st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
+            else:
+              st.error(f"❌ CSV: {f.name} — {res.get('message')}")
 
-        elif ext == "pdf":
-          res = parse_detonator_pdf(f_bytes)
-          if res.get("status") == "success":
-            curr_data["field_files_parsed"]["pdf"] = res
-            st.success(f"✅ PDF: {f.name}")
-          else:
-            st.error(f"❌ PDF: {f.name} — {res.get('message')}")
+          elif ext == "txt":
+            res = parse_txt_file(f_bytes)
+            if res.get("status") == "success":
+              curr_data["field_files_parsed"]["txt"] = res
+              st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
+            else:
+              st.error(f"❌ TXT: {f.name} — {res.get('message')}")
+
+          elif ext == "pdf":
+            res = parse_detonator_pdf(f_bytes)
+            if res.get("status") == "success":
+              curr_data["field_files_parsed"]["pdf"] = res
+              st.success(f"✅ PDF: {f.name}")
+            else:
+              st.error(f"❌ PDF: {f.name} — {res.get('message')}")
 
     field_master_df = build_master_dataframe(curr_data["field_files_parsed"])
 
-    st.markdown("#### 📝 Real Hole Data")
-    st.caption("Manual Adjustment (in case data is missing)")
-    with st.form("actual_form"):
-      act_holes = st.number_input(
-          "Real hole number",
-          min_value=1,
-          value=curr_data.get("actual", {}).get("holes", 36),
-      )
-      act_exp = st.number_input(
-          "Real explosives weight [kg]",
-          min_value=0.0,
-          value=curr_data.get("actual", {}).get("explosive_kg", 0.0),
-      )
-      act_notes = st.text_area(
-          "Comments",
-          value=curr_data.get("actual", {}).get("notes", ""),
-      )
-
-      if st.form_submit_button("💾 Save"):
-        curr_data["actual"] = {
-            "holes": act_holes,
-            "explosive_kg": act_exp,
-            "notes": act_notes,
-        }
-        st.success("Saved!")
-
-    st.markdown("#### 💣 Charge Parameters (bulk entry)")
-    st.caption("Fill in once, then save it to a single hole or every hole.")
-    with st.form("field_bulk_charge_form"):
-      fd_stemming = st.number_input("Stemming length [m]", min_value=0.0, value=0.0)
-      fd_inter_stemming = st.number_input(
-          "Intermediate stemming length [m]", min_value=0.0, value=0.0
-      )
-      fd_charge = st.number_input(
-          "Explosive charge [kg]", min_value=0.0, value=0.0
-      )
-      fd_type = st.selectbox("Explosive type", CHARGE_TYPE_OPTIONS)
-
-      field_hole_options = (
-          field_master_df["Hole"].tolist()
-          if field_master_df is not None and not field_master_df.empty
-          else []
-      )
-      if field_hole_options:
-        fd_target_hole = st.selectbox(
-            "Apply 'Save for this hole' to:", field_hole_options
+    with st.container(border=True):
+      st.markdown("#### 📝 Real Hole Data")
+      st.caption("Manual Adjustment (in case data is missing)")
+      with st.form("actual_form"):
+        act_holes = st.number_input(
+            "Real hole number",
+            min_value=1,
+            value=curr_data.get("actual", {}).get("holes", 36),
+        )
+        act_exp = st.number_input(
+            "Real explosives weight [kg]",
+            min_value=0.0,
+            value=curr_data.get("actual", {}).get("explosive_kg", 0.0),
+        )
+        act_notes = st.text_area(
+            "Comments",
+            value=curr_data.get("actual", {}).get("notes", ""),
         )
 
-      fd_col1, fd_col2 = st.columns(2)
-      save_this_hole = fd_col1.form_submit_button("💾 Save for this hole")
-      save_all_holes = fd_col2.form_submit_button("📋 Save for all holes")
+        if st.form_submit_button("💾 Save"):
+          curr_data["actual"] = {
+              "holes": act_holes,
+              "explosive_kg": act_exp,
+              "notes": act_notes,
+          }
+          st.success("Saved!")
 
-      new_field_charge = {
-          "stemming_length": fd_stemming,
-          "intermediate_stemming_length": fd_inter_stemming,
-          "explosive_charge": fd_charge,
-          "explosive_type": fd_type,
-      }
-      field_overrides_ns = curr_data["hole_overrides"].setdefault("field", {})
+      st.markdown(
+          '<div class="adc-subsection">💣 Charge Parameters (bulk entry)</div>',
+          unsafe_allow_html=True,
+      )
+      st.caption("Fill in once, then save it to a single hole or every hole.")
+      with st.form("field_bulk_charge_form"):
+        fd_stemming = st.number_input("Stemming length [m]", min_value=0.0, value=0.0)
+        fd_inter_stemming = st.number_input(
+            "Intermediate stemming length [m]", min_value=0.0, value=0.0
+        )
+        fd_charge = st.number_input(
+            "Explosive charge [kg]", min_value=0.0, value=0.0
+        )
+        fd_type = st.selectbox("Explosive type", CHARGE_TYPE_OPTIONS)
 
-      if save_this_hole:
+        field_hole_options = (
+            field_master_df["Hole"].tolist()
+            if field_master_df is not None and not field_master_df.empty
+            else []
+        )
         if field_hole_options:
-          field_overrides_ns[str(fd_target_hole)] = dict(new_field_charge)
-          st.success(f"Charge parameters saved for {fd_target_hole}!")
-        else:
-          st.warning("Upload field files first to select a hole.")
-      elif save_all_holes:
-        if field_hole_options:
-          for h in field_hole_options:
-            field_overrides_ns[str(h)] = dict(new_field_charge)
-          st.success(f"Charge parameters saved for all {len(field_hole_options)} holes!")
-        else:
-          st.warning("Upload field files first — no holes to save to yet.")
+          fd_target_hole = st.selectbox(
+              "Apply 'Save for this hole' to:", field_hole_options
+          )
+
+        fd_col1, fd_col2 = st.columns(2)
+        save_this_hole = fd_col1.form_submit_button("💾 Save for this hole")
+        save_all_holes = fd_col2.form_submit_button("📋 Save for all holes")
+
+        new_field_charge = {
+            "stemming_length": fd_stemming,
+            "intermediate_stemming_length": fd_inter_stemming,
+            "explosive_charge": fd_charge,
+            "explosive_type": fd_type,
+        }
+        field_overrides_ns = curr_data["hole_overrides"].setdefault("field", {})
+
+        if save_this_hole:
+          if field_hole_options:
+            field_overrides_ns[str(fd_target_hole)] = dict(new_field_charge)
+            st.success(f"Charge parameters saved for {fd_target_hole}!")
+          else:
+            st.warning("Upload field files first to select a hole.")
+        elif save_all_holes:
+          if field_hole_options:
+            for h in field_hole_options:
+              field_overrides_ns[str(h)] = dict(new_field_charge)
+            st.success(f"Charge parameters saved for all {len(field_hole_options)} holes!")
+          else:
+            st.warning("Upload field files first — no holes to save to yet.")
 
     st.divider()
     render_hole_card(field_master_df, key_prefix="field")
