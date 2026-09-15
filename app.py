@@ -90,6 +90,7 @@ st.markdown(
       margin-bottom: 1rem;
     }
 
+
     section[data-testid="stSidebar"] .stButton button,
     div.stForm button {
       background: linear-gradient(135deg, #7c3aed, #06b6d4);
@@ -445,7 +446,7 @@ else:
         legend.get_frame().set_edgecolor("#475569")
         for text in legend.get_texts():
           text.set_color("#e2e8f0")
-        st.pyplot(fig, width=700)
+        st.pyplot(fig, width=950)
       else:
         st.info("No TXT burden profile available for this hole.")
 
@@ -589,73 +590,75 @@ else:
   )
 
   # --- TAB 1: PROJECT FILE UPLOAD ---
-  with tab_project, st.container(border=True):
+  with tab_project:
     st.subheader("📁 Project Files")
-    st.caption("Add your project files in xml, csv, txt, pdf formats.")
-    uploaded_files = st.file_uploader(
-        "Upload project package",
-        type=["xml", "csv", "txt", "pdf"],
-        accept_multiple_files=True,
-        key=f"upl_des_{curr_proj}",
-    )
 
-    if uploaded_files:
-      for f in uploaded_files:
-        f_bytes = f.read()
-        ext = f.name.split(".")[-1].lower()
-
-        if ext == "xml":
-          res = parse_iredes_xml(f_bytes)
-          if res.get("status") == "success":
-            curr_data["files_parsed"]["xml"] = res
-            st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
-          else:
-            st.error(f"❌ XML: {f.name} — {res.get('message')}")
-
-        elif ext == "csv":
-          res = parse_quarryx_csv(f_bytes)
-          if res.get("status") == "success":
-            curr_data["files_parsed"]["csv"] = res
-            st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
-          else:
-            st.error(f"❌ CSV: {f.name} — {res.get('message')}")
-
-        elif ext == "txt":
-          res = parse_txt_file(f_bytes)
-          if res.get("status") == "success":
-            curr_data["files_parsed"]["txt"] = res
-            st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
-          else:
-            st.error(f"❌ TXT: {f.name} — {res.get('message')}")
-
-        elif ext == "pdf":
-          res = parse_detonator_pdf(f_bytes)
-          if res.get("status") == "success":
-            curr_data["files_parsed"]["pdf"] = res
-            st.success(f"✅ PDF: {f.name}")
-          else:
-            st.error(f"❌ PDF: {f.name} — {res.get('message')}")
-
-    project_master_df = build_master_dataframe(curr_data["files_parsed"])
-
-    if "xml" in curr_data["files_parsed"]:
-      x = curr_data["files_parsed"]["xml"]
-      st.markdown("#### ℹ️ Project metadata (from XML file)")
-      st.info(
-          f"🛠️ **Software:** {x.get('generated_by')} | 📅 **Date:**"
-          f" {x.get('creation_date')}\n\n👤 **Author:** {x.get('author')} | 🏢"
-          f" **Client:** {x.get('project')}\n\n📍 **Work order:**"
-          f" {x.get('work_order')}\n\n📐 **Grid:** First row burden ="
-          f" **{x.get('first_row_burden')} m** | Spacing ="
-          f" **{x.get('spacing')} m** | Rock volume ="
-          f" **{x.get('cubic_mass_m3'):,.1f} m³**"
+    with st.container(border=True):
+      st.caption("Add your project files in xml, csv, txt, pdf formats.")
+      uploaded_files = st.file_uploader(
+          "Upload project package",
+          type=["xml", "csv", "txt", "pdf"],
+          accept_multiple_files=True,
+          key=f"upl_des_{curr_proj}",
       )
 
-    render_pattern_plan(project_master_df)
+      if uploaded_files:
+        for f in uploaded_files:
+          f_bytes = f.read()
+          ext = f.name.split(".")[-1].lower()
+
+          if ext == "xml":
+            res = parse_iredes_xml(f_bytes)
+            if res.get("status") == "success":
+              curr_data["files_parsed"]["xml"] = res
+              st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
+            else:
+              st.error(f"❌ XML: {f.name} — {res.get('message')}")
+
+          elif ext == "csv":
+            res = parse_quarryx_csv(f_bytes)
+            if res.get("status") == "success":
+              curr_data["files_parsed"]["csv"] = res
+              st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
+            else:
+              st.error(f"❌ CSV: {f.name} — {res.get('message')}")
+
+          elif ext == "txt":
+            res = parse_txt_file(f_bytes)
+            if res.get("status") == "success":
+              curr_data["files_parsed"]["txt"] = res
+              st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
+            else:
+              st.error(f"❌ TXT: {f.name} — {res.get('message')}")
+
+          elif ext == "pdf":
+            res = parse_detonator_pdf(f_bytes)
+            if res.get("status") == "success":
+              curr_data["files_parsed"]["pdf"] = res
+              st.success(f"✅ PDF: {f.name}")
+            else:
+              st.error(f"❌ PDF: {f.name} — {res.get('message')}")
+
+      project_master_df = build_master_dataframe(curr_data["files_parsed"])
+
+      if "xml" in curr_data["files_parsed"]:
+        x = curr_data["files_parsed"]["xml"]
+        st.markdown("#### ℹ️ Project metadata (from XML file)")
+        st.info(
+            f"🛠️ **Software:** {x.get('generated_by')} | 📅 **Date:**"
+            f" {x.get('creation_date')}\n\n👤 **Author:** {x.get('author')} | 🏢"
+            f" **Client:** {x.get('project')}\n\n📍 **Work order:**"
+            f" {x.get('work_order')}\n\n📐 **Grid:** First row burden ="
+            f" **{x.get('first_row_burden')} m** | Spacing ="
+            f" **{x.get('spacing')} m** | Rock volume ="
+            f" **{x.get('cubic_mass_m3'):,.1f} m³**"
+        )
+
+      render_pattern_plan(project_master_df)
 
     st.divider()
-    render_hole_card(project_master_df, key_prefix="proj")
-
+    with st.container(border=True):
+      render_hole_card(project_master_df, key_prefix="proj")
   # --- TAB 2: AS-BUILT / TRUE FIELD DATA ---
   with tab_field:
     st.subheader("📡 True Field Data")
@@ -787,7 +790,8 @@ else:
             st.warning("Upload field files first — no holes to save to yet.")
 
     st.divider()
-    render_hole_card(field_master_df, key_prefix="field")
+    with st.container(border=True):
+      render_hole_card(field_master_df, key_prefix="field")
 
   # --- TAB 3: HOLE DATABASE (FULL TABLE) ---
   with tab_database:
