@@ -21,7 +21,7 @@ if "projects" not in st.session_state:
 if "current_project" not in st.session_state:
   st.session_state.current_project = None
 
-# --- SIDEBAR: ZARZĄDZANIE PROJEKTAMI ---
+# --- SIDEBAR: PROJECT MANAGEMENT ---
 st.sidebar.title("🗂️ Multiple Blast Projects")
 
 with st.sidebar.form("new_proj_form"):
@@ -34,39 +34,39 @@ with st.sidebar.form("new_proj_form"):
           "files_parsed": {},
       }
       st.session_state.current_project = new_name
-      st.sidebar.success(f"Utworzono: **{new_name}**")
+      st.sidebar.success(f"Created: **{new_name}**")
     else:
-      st.sidebar.warning("Projekt już istnieje.")
+      st.sidebar.warning("Project already exists.")
 
 if st.session_state.projects:
   projs = list(st.session_state.projects.keys())
   st.session_state.current_project = st.sidebar.selectbox(
-      "Wybierz aktywny projekt",
+      "Select active project",
       projs,
       index=projs.index(st.session_state.current_project)
       if st.session_state.current_project in projs
       else 0,
   )
 
-# --- PANEL GŁÓWNY ---
+# --- MAIN PANEL ---
 st.title("⛏️ Multiple Blast Data")
 
 if not st.session_state.current_project:
-  st.info("👈 Wybierz lub załóż projekt w panelu bocznym.")
+  st.info("👈 Select or create a project in the sidebar.")
 else:
   curr_proj = st.session_state.current_project
   curr_data = st.session_state.projects[curr_proj]
 
-  st.markdown(f"### 📍 Projekt: `{curr_proj}`")
+  st.markdown(f"### 📍 Project: `{curr_proj}`")
   st.divider()
 
   col1, col2 = st.columns(2)
 
-  # --- SEKCJA 1: WGRYWANIE PLIKÓW PROJEKTOWYCH ---
+  # --- SECTION 1: PROJECT FILE UPLOAD ---
   with col1:
     st.subheader("1️⃣ Project files (XML, CSV, TXT, PDF)")
     uploaded_files = st.file_uploader(
-        "Wgraj paczkę projektową",
+        "Upload project package",
         type=["xml", "csv", "txt", "pdf"],
         accept_multiple_files=True,
         key=f"upl_des_{curr_proj}",
@@ -81,7 +81,7 @@ else:
           res = parse_iredes_xml(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["xml"] = res
-            st.success(f"✅ XML: {f.name} ({res['holes_count']} otworów)")
+            st.success(f"✅ XML: {f.name} ({res['holes_count']} holes)")
           else:
             st.error(f"❌ XML: {f.name} — {res.get('message')}")
 
@@ -89,7 +89,7 @@ else:
           res = parse_quarryx_csv(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["csv"] = res
-            st.success(f"✅ CSV: {f.name} ({res['holes_count']} otworów)")
+            st.success(f"✅ CSV: {f.name} ({res['holes_count']} holes)")
           else:
             st.error(f"❌ CSV: {f.name} — {res.get('message')}")
 
@@ -97,7 +97,7 @@ else:
           res = parse_txt_file(f_bytes)
           if res.get("status") == "success":
             curr_data["files_parsed"]["txt"] = res
-            st.success(f"✅ TXT: {f.name} ({res['holes_count']} profili)")
+            st.success(f"✅ TXT: {f.name} ({res['holes_count']} profiles)")
           else:
             st.error(f"❌ TXT: {f.name} — {res.get('message')}")
 
@@ -111,20 +111,20 @@ else:
 
     if "xml" in curr_data["files_parsed"]:
       x = curr_data["files_parsed"]["xml"]
-      st.markdown("#### ℹ️ Metadane projektu (z pliku XML)")
+      st.markdown("#### ℹ️ Project metadata (from XML file)")
       st.info(
-          f"🛠️ **Program:** {x.get('generated_by')} | 📅 **Data:**"
-          f" {x.get('creation_date')}\n\n👤 **Autor:** {x.get('author')} | 🏢"
-          f" **Zleceniodawca:** {x.get('project')}\n\n📍 **Zadanie:**"
-          f" {x.get('work_order')}\n\n📐 **Siatka:** Zabiór rz. I ="
-          f" **{x.get('first_row_burden')} m** | Rozstaw ="
-          f" **{x.get('spacing')} m** | Objętość calizny ="
+          f"🛠️ **Software:** {x.get('generated_by')} | 📅 **Date:**"
+          f" {x.get('creation_date')}\n\n👤 **Author:** {x.get('author')} | 🏢"
+          f" **Client:** {x.get('project')}\n\n📍 **Work order:**"
+          f" {x.get('work_order')}\n\n📐 **Grid:** First row burden ="
+          f" **{x.get('first_row_burden')} m** | Spacing ="
+          f" **{x.get('spacing')} m** | Rock volume ="
           f" **{x.get('cubic_mass_m3'):,.1f} m³**"
       )
 
-  # --- SEKCJA 2: DANE POWYKONAWCZE ---
+  # --- SECTION 2: AS-BUILT DATA ---
   with col2:
-    st.subheader("2️⃣ Dane Rzeczywiste (MWD / Powykonawcze)")
+    st.subheader("2️⃣ Actual Data (MWD / As-Built)")
     st.file_uploader(
         "Load reports / MWD",
         type=["txt", "csv", "pdf"],
@@ -154,9 +154,9 @@ else:
             "explosive_kg": act_exp,
             "notes": act_notes,
         }
-        st.success("Zapisano!")
+        st.success("Saved!")
 
-  # --- SEKCJA 3: KARTA SZCZEGÓŁOWA OTWORU + PRZEKRÓJ 2D (90 STOPNI DO OSI) ---
+  # --- SECTION 3: HOLE DETAIL CARD + 2D CROSS-SECTION (PERPENDICULAR TO AXIS) ---
   st.divider()
   master_df = build_master_dataframe(curr_data["files_parsed"])
 
@@ -166,7 +166,7 @@ else:
     )
 
     hole_list = master_df["Hole"].tolist()
-    sel_hole = st.selectbox("Wybierz otwór do analizy:", hole_list)
+    sel_hole = st.selectbox("Select hole to analyze:", hole_list)
 
     hole_row = master_df[master_df["Hole"] == sel_hole].iloc[0]
 
@@ -218,7 +218,7 @@ else:
         else hole_row.get("TXT_Azimuth", 0.0)
     )
 
-    # Odczyt i bezpieczny fallback średnicy otworu
+    # Read hole diameter with a safe fallback
     raw_dia = hole_row.get("Hole diameter")
     if (
         pd.notna(raw_dia)
@@ -242,59 +242,59 @@ else:
     val_deck = (
         hole_row.get("Deck 1 timing")
         if pd.notna(hole_row.get("Deck 1 timing"))
-        else "Brak"
+        else "None"
     )
 
     card_left, card_right = st.columns([1, 1.2])
 
     with card_left:
-      st.markdown("#### 📐 Parametry Otworu")
+      st.markdown("#### 📐 Hole Parameters")
       st.write(
-          f"- **Współrzędne wlotu (X, Y, Z):** `{val_x}`, `{val_y}`, `{val_z}`"
+          f"- **Collar coordinates (X, Y, Z):** `{val_x}`, `{val_y}`, `{val_z}`"
       )
       st.write(
-          "- **Współrzędne dna (BottomX, Y, Z):**"
+          "- **Bottom coordinates (BottomX, Y, Z):**"
           f" `{val_bx}`, `{val_by}`, `{val_bz}`"
       )
       st.write(
-          f"- **Długość:** `{val_len} m` | **Średnica:** `{val_dia} mm` |"
-          f" **Kąt / Azymut:** `{val_ang}° / {val_az}°`"
+          f"- **Length:** `{val_len} m` | **Diameter:** `{val_dia} mm` |"
+          f" **Angle / Azimuth:** `{val_ang}° / {val_az}°`"
       )
       st.write(
-          f"- **Opóźnienie:** `{val_deck} ms` | **Masa MW:** `{val_exp} kg`"
+          f"- **Delay:** `{val_deck} ms` | **Explosive mass:** `{val_exp} kg`"
       )
 
-      st.markdown("#### 📊 Analityka Zabioru")
+      st.markdown("#### 📊 Burden Analytics")
       st.write(
-          "- **Zabiór pod koroną (Crest):**"
-          f" `{hole_row.get('Crest_Burden_m', 'Brak')} m`"
+          "- **Crest burden:**"
+          f" `{hole_row.get('Crest_Burden_m', 'None')} m`"
       )
       st.write(
-          "- **Zabiór na stopie (Toe):**"
-          f" `{hole_row.get('Toe_Burden_m', 'Brak')} m`"
+          "- **Toe burden:**"
+          f" `{hole_row.get('Toe_Burden_m', 'None')} m`"
       )
       st.write(
-          "- **Min. Zabiór:**"
-          f" `{hole_row.get('Min_Burden_m', 'Brak')} m` (głębokość:"
+          "- **Min. burden:**"
+          f" `{hole_row.get('Min_Burden_m', 'None')} m` (depth:"
           f" `{hole_row.get('Min_Burden_Depth_m', '-')} m`)"
       )
       st.write(
-          "- **Max. Zabiór:**"
-          f" `{hole_row.get('Max_Burden_m', 'Brak')} m` (głębokość:"
+          "- **Max. burden:**"
+          f" `{hole_row.get('Max_Burden_m', 'None')} m` (depth:"
           f" `{hole_row.get('Max_Burden_Depth_m', '-')} m`)"
       )
       st.write(
-          "- **Średni zabiór otworu:**"
-          f" `{hole_row.get('Mean_Burden_m', 'Brak')} m`"
+          "- **Mean hole burden:**"
+          f" `{hole_row.get('Mean_Burden_m', 'None')} m`"
       )
 
       raw_json = hole_row.get("Burden_Profile_JSON")
       if pd.notna(raw_json) and raw_json:
-        with st.expander("📦 Pełny rekord JSON"):
+        with st.expander("📦 Full JSON record"):
           st.json(json.loads(raw_json))
 
     with card_right:
-      st.markdown("#### 📉 Przekrój 2D z Wymiarowaniem Prostopadłym")
+      st.markdown("#### 📉 2D Cross-Section with Perpendicular Dimensioning")
       raw_json = hole_row.get("Burden_Profile_JSON")
       if pd.notna(raw_json) and raw_json:
         pts = json.loads(raw_json)
@@ -317,7 +317,7 @@ else:
             color="red",
             linestyle="--",
             linewidth=2.5,
-            label=f"Oś otworu {sel_hole} ({ang_deg}°)",
+            label=f"Hole axis {sel_hole} ({ang_deg}°)",
         )
         ax.plot(
             face_x,
@@ -325,7 +325,7 @@ else:
             color="black",
             linestyle="-",
             linewidth=2.0,
-            label="Lico ściany (Profil)",
+            label="Rock face (Profile)",
         )
         ax.fill_betweenx(
             hole_z,
@@ -333,7 +333,7 @@ else:
             face_x,
             color="#cbd5e1",
             alpha=0.35,
-            label="Zabiór (Calizna)",
+            label="Burden (Rock mass)",
         )
 
         for d, b, hx, hz, fx, fz in zip(
@@ -361,16 +361,16 @@ else:
                 rotation=ang_deg,
             )
 
-        ax.set_xlabel("Odległość pozioma [m]", fontsize=9)
-        ax.set_ylabel("Rzędna pionowa (w dół) [m]", fontsize=9)
+        ax.set_xlabel("Horizontal distance [m]", fontsize=9)
+        ax.set_ylabel("Vertical elevation (downward) [m]", fontsize=9)
         ax.set_aspect("equal", adjustable="box")
         ax.grid(True, linestyle=":", alpha=0.6)
         ax.legend(loc="lower right", fontsize=8)
         st.pyplot(fig)
       else:
-        st.info("Brak profilu zabioru TXT dla tego otworu.")
+        st.info("No TXT burden profile available for this hole.")
 
-  # --- SEKCJA 4: GŁÓWNA TABELA BAZY DANYCH ---
+  # --- SECTION 4: MAIN DATABASE TABLE ---
   st.divider()
   st.subheader(
       "📊 Complex hole database"
@@ -379,7 +379,7 @@ else:
   if master_df is not None and not master_df.empty:
     col_search, col_export = st.columns([3, 1])
     with col_search:
-      query = st.text_input("🔎 Filtruj bazę otworów")
+      query = st.text_input("🔎 Filter hole database")
 
     view_df = master_df
     if query:
@@ -393,10 +393,10 @@ else:
     with col_export:
       csv_bytes = master_df.to_csv(index=False).encode("utf-8")
       st.download_button(
-          label="📥 Eksportuj Pełną Bazę z JSON (.CSV)",
+          label="📥 Export Full Database with JSON (.CSV)",
           data=csv_bytes,
           file_name=f"{curr_proj}_Master_Blast_DB.csv",
           mime="text/csv",
       )
   else:
-    st.info("ℹ️ Wgraj pliki projektu, aby wygenerować bazę danych otworów.")
+    st.info("ℹ️ Upload project files to generate the hole database.")
