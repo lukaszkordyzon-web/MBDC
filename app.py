@@ -18,149 +18,249 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
 
     html, body, [class*="css"] {
       font-family: 'Inter', sans-serif;
     }
 
-    .adc-hero {
-      background: #1b1b1f;
-      border: 1px solid #2c2c31;
-      border-top: 4px solid #E5484D;
-      padding: 1.75rem 2rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.55);
+    /* --- Ambient backdrop: one restrained accent glow, nothing competing --- */
+    [data-testid="stAppViewContainer"] {
+      background:
+        radial-gradient(600px circle at 10% -10%, rgba(229, 72, 77, 0.07), transparent 60%),
+        #0a0a0b;
     }
-    .adc-hero h1 {
-      color: #f2f1f3;
-      margin: 0;
-      font-weight: 800;
-      font-size: 2.1rem;
+    section[data-testid="stSidebar"] {
+      background: #0d0d0f;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    h1, h2, h3, h4, .adc-hero h1 {
+      font-family: 'Manrope', 'Inter', sans-serif;
       letter-spacing: -0.02em;
     }
+
+    /* --- Hero --- */
+    .adc-hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem 2.25rem;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+    }
+    .adc-hero::before {
+      content: "";
+      position: absolute;
+      top: -90px;
+      right: -60px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(229, 72, 77, 0.35), transparent 70%);
+      filter: blur(10px);
+      pointer-events: none;
+    }
+    .adc-hero h1 {
+      position: relative;
+      z-index: 1;
+      color: #f5f5f7;
+      margin: 0;
+      font-weight: 800;
+      font-size: 2.3rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .adc-title-gradient {
+      background: linear-gradient(135deg, #ffffff 25%, #ff9d9d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
     .adc-hero p {
-      color: #9c9aa3;
-      margin: 0.35rem 0 0 0;
-      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+      color: #96959c;
+      margin: 0.5rem 0 0 0;
+      font-size: 0.98rem;
+      max-width: 60ch;
     }
     .adc-poc-badge {
       display: inline-block;
-      background: #f59e0b;
-      color: #1e1b4b;
-      padding: 0.3rem 0.9rem;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #1a1206;
+      padding: 0.3rem 0.85rem;
       border-radius: 999px;
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       font-weight: 800;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       vertical-align: middle;
-      margin-left: 0.75rem;
-      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.6);
-      border: 2px solid #fde68a;
+      box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.5);
     }
 
     .adc-poc-banner {
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid #f59e0b;
-      color: #fde68a;
-      padding: 0.6rem 1rem;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+      padding: 0.7rem 1.1rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
     }
 
     .adc-sidebar-poc {
       display: inline-block;
-      background: #f59e0b;
-      color: #1e1b4b;
-      padding: 0.15rem 0.55rem;
-      border-radius: 6px;
-      font-size: 0.72rem;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #1a1206;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
       font-weight: 800;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.5rem;
     }
 
     /* --- Consistent type scale: section (h3) > subsection (h4) --- */
     h3 {
-      font-size: 1.25rem !important;
+      font-size: 1.2rem !important;
       font-weight: 700 !important;
       margin-top: 0.25rem !important;
       margin-bottom: 0.75rem !important;
     }
     h4 {
-      font-size: 1.0rem !important;
+      font-size: 0.98rem !important;
       font-weight: 700 !important;
       margin-top: 0.25rem !important;
       margin-bottom: 0.5rem !important;
     }
 
-    /* --- Metrics: smaller, uniform, never truncated --- */
+    /* --- Metrics: modern soft cards with a gentle hover lift --- */
     div[data-testid="stMetric"] {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 10px;
-      padding: 0.6rem 0.75rem;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
       margin-bottom: 0.5rem;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    div[data-testid="stMetric"]:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
     }
     div[data-testid="stMetricValue"] {
       font-size: 1.3rem !important;
       white-space: normal !important;
       overflow-wrap: break-word;
       line-height: 1.25 !important;
+      font-family: 'Manrope', 'Inter', sans-serif;
     }
     div[data-testid="stMetricLabel"] {
-      font-size: 0.78rem !important;
-      opacity: 0.75;
+      font-size: 0.76rem !important;
+      opacity: 0.65;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .adc-subsection {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       font-weight: 700;
       margin: 0.25rem 0 0.5rem 0.75rem;
       padding-left: 0.75rem;
       border-left: 3px solid #E5484D;
     }
 
-    /* --- Consistent gap between cards/sections --- */
+    /* --- Cards: soft elevation, generous radius, subtle hover --- */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-      margin-bottom: 1rem;
+      border-radius: 18px !important;
+      margin-bottom: 1.1rem;
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+      border-radius: 18px !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      background: rgba(255, 255, 255, 0.015);
+      transition: border-color 0.2s ease;
     }
 
-
+    /* --- Buttons: rounded, tactile, with a soft lift on hover --- */
     section[data-testid="stSidebar"] .stButton button,
-    div.stForm button {
+    div.stForm button,
+    .stDownloadButton button {
       background: #E5484D;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: 600;
+      padding: 0.5rem 1.1rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
     section[data-testid="stSidebar"] .stButton button:hover,
-    div.stForm button:hover {
-      background: #c93a3f;
+    div.stForm button:hover,
+    .stDownloadButton button:hover {
+      background: #ff5b5f;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px -6px rgba(229, 72, 77, 0.55);
+    }
+    section[data-testid="stSidebar"] .stButton button:active,
+    div.stForm button:active {
+      transform: translateY(0);
     }
 
-    button[data-testid="stTab"] {
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 0.75rem 1.25rem;
-      color: #9c9aa3;
+    /* --- Inputs: rounded with a red focus ring --- */
+    div[data-baseweb="input"], div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
+      border-radius: 10px !important;
     }
-    button[data-testid="stTab"][aria-selected="true"] {
-      color: #f2f1f3;
-      border-bottom-color: #E5484D !important;
+    div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {
+      box-shadow: 0 0 0 2px rgba(229, 72, 77, 0.35) !important;
+    }
+
+    /* --- Tabs as a modern segmented control instead of an underline --- */
+    div[data-testid="stTabs"] div[data-baseweb="tab-border"] {
+      display: none;
     }
     div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {
-      background-color: #E5484D;
+      display: none;
     }
+    div[data-testid="stTabs"] div[role="tablist"] {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 2px;
+      width: fit-content;
+    }
+    button[data-testid="stTab"] {
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 0.55rem 1.1rem;
+      color: #96959c;
+      border-radius: 10px !important;
+      border: none !important;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    button[data-testid="stTab"]:hover {
+      color: #f5f5f7;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    button[data-testid="stTab"][aria-selected="true"] {
+      color: #ffffff;
+      background: #E5484D;
+    }
+
+    /* --- Thin, dark scrollbar for a tidier feel --- */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
     """,
     unsafe_allow_html=True,
@@ -210,7 +310,7 @@ if st.session_state.projects:
 st.markdown(
     """
     <div class="adc-hero">
-      <h1>💥 BlastDataHub <span class="adc-poc-badge">Proof of Concept</span></h1>
+      <h1>💥 <span class="adc-title-gradient">BlastDataHub</span> <span class="adc-poc-badge">Proof of Concept</span></h1>
       <p>Aggregate drill plans, MWD reports and detonator logs into one blast database.</p>
     </div>
     <div class="adc-poc-banner">
