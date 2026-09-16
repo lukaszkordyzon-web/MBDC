@@ -45,8 +45,11 @@ st.markdown(
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     }
     section[data-testid="stSidebar"] {
-      background: #0c0c0e;
-      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      background: #070a14;
+      border-right: 1px solid rgba(99, 102, 241, 0.1);
+    }
+    [data-testid="stHeader"] {
+      background: transparent !important;
     }
 
     h1, h2, h3, h4, .adc-hero h1 {
@@ -119,8 +122,8 @@ st.markdown(
     }
     .adc-poc-badge {
       display: inline-block;
-      background: linear-gradient(120deg, #fbbf24, #eab308);
-      color: #1a1206;
+      background: linear-gradient(120deg, #7dd3fc, #0ea5e9);
+      color: #042a3d;
       padding: 0.3rem 0.85rem;
       border-radius: 999px;
       font-size: 0.8rem;
@@ -128,16 +131,16 @@ st.markdown(
       letter-spacing: 0.05em;
       text-transform: uppercase;
       vertical-align: middle;
-      box-shadow: 0 4px 16px -2px rgba(234, 179, 8, 0.5);
+      box-shadow: 0 4px 16px -2px rgba(14, 165, 233, 0.5);
     }
 
     .adc-poc-banner {
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: #fcd34d;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc;
       padding: 0.7rem 1.1rem;
       border-radius: 14px;
       font-size: 0.88rem;
@@ -147,8 +150,8 @@ st.markdown(
 
     .adc-sidebar-poc {
       display: inline-block;
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-      color: #1a1206;
+      background: linear-gradient(135deg, #7dd3fc, #0ea5e9);
+      color: #042a3d;
       padding: 0.18rem 0.55rem;
       border-radius: 999px;
       font-size: 0.68rem;
@@ -174,8 +177,8 @@ st.markdown(
 
     /* --- Metrics: modern soft cards with a gentle hover lift --- */
     div[data-testid="stMetric"] {
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.16);
       border-radius: 14px;
       padding: 0.75rem 1rem;
       margin-bottom: 0.5rem;
@@ -218,8 +221,8 @@ st.markdown(
            Glass surface with a gradient glow that appears on hover. --- */
     div[data-testid="stLayoutWrapper"] > div[data-testid="stVerticalBlock"] {
       border-radius: 18px !important;
-      border: 1px solid rgba(255, 255, 255, 0.09) !important;
-      background: rgba(255, 255, 255, 0.025) !important;
+      border: 1px solid rgba(99, 102, 241, 0.14) !important;
+      background: rgba(59, 130, 246, 0.035) !important;
       backdrop-filter: blur(8px);
       padding: 1.15rem 1.35rem !important;
       margin-bottom: 1.1rem !important;
@@ -286,8 +289,8 @@ st.markdown(
       display: none;
     }
     div[data-testid="stTabs"] div[role="tablist"] {
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(99, 102, 241, 0.14);
       border-radius: 14px;
       padding: 4px;
       gap: 2px;
@@ -331,7 +334,7 @@ if "current_project" not in st.session_state:
 # --- SIDEBAR: PROJECT MANAGEMENT ---
 st.sidebar.title("💥 BlastDataHub")
 st.sidebar.markdown(
-    '<span class="adc-sidebar-poc">⚠️ Proof of Concept</span>',
+    '<span class="adc-sidebar-poc">🔷 Proof of Concept</span>',
     unsafe_allow_html=True,
 )
 st.sidebar.caption("Blast & drilling data aggregation")
@@ -370,7 +373,7 @@ st.markdown(
       <p>Aggregate drill plans, MWD reports and detonator logs into one blast database.</p>
     </div>
     <div class="adc-poc-banner">
-      ⚠️ This is a Proof of Concept build — for internal testing and demonstration only, not production data.
+      🔷 This is a Proof of Concept build — for internal testing and demonstration only, not production data.
     </div>
     """,
     unsafe_allow_html=True,
@@ -592,8 +595,8 @@ else:
         face_z = hole_z + np.array(burdens) * np.sin(ang_rad)
 
         fig, ax = plt.subplots(figsize=(5.5, 7.5))
-        fig.patch.set_facecolor("#121214")
-        ax.set_facecolor("#18181c")
+        fig.patch.set_facecolor("#080b16")
+        ax.set_facecolor("#111731")
         ax.tick_params(colors="#e2e8f0")
         ax.xaxis.label.set_color("#e2e8f0")
         ax.yaxis.label.set_color("#e2e8f0")
@@ -631,7 +634,7 @@ else:
             ax.plot(
                 [hx, fx],
                 [hz, fz],
-                color="#fbbf24",
+                color="#38bdf8",
                 linestyle=":",
                 linewidth=1.3,
             )
@@ -641,7 +644,7 @@ else:
                 mid_x,
                 mid_z + 0.12,
                 f"{b:.2f} m",
-                color="#fbbf24",
+                color="#38bdf8",
                 fontsize=7.5,
                 ha="center",
                 va="bottom",
@@ -654,7 +657,7 @@ else:
         ax.set_aspect("equal", adjustable="box")
         ax.grid(True, linestyle=":", alpha=0.3, color="#3a3a40")
         legend = ax.legend(loc="lower right", fontsize=8)
-        legend.get_frame().set_facecolor("#18181c")
+        legend.get_frame().set_facecolor("#111731")
         legend.get_frame().set_edgecolor("#3a3a40")
         for text in legend.get_texts():
           text.set_color("#e2e8f0")
@@ -681,8 +684,8 @@ else:
 
     st.markdown("#### 🗺️ Blast Pattern Plan View")
     fig, ax = plt.subplots(figsize=(6, 5))
-    fig.patch.set_facecolor("#121214")
-    ax.set_facecolor("#18181c")
+    fig.patch.set_facecolor("#080b16")
+    ax.set_facecolor("#111731")
     ax.tick_params(colors="#e2e8f0")
     ax.xaxis.label.set_color("#e2e8f0")
     ax.yaxis.label.set_color("#e2e8f0")
@@ -690,7 +693,7 @@ else:
       spine.set_color("#3a3a40")
 
     ax.scatter(
-        xs, ys, color="#fbbf24", s=70, edgecolors="#a855f7", linewidths=1.4, zorder=3
+        xs, ys, color="#38bdf8", s=70, edgecolors="#6366f1", linewidths=1.4, zorder=3
     )
     for x_val, y_val, label in zip(xs, ys, labels):
       ax.annotate(
