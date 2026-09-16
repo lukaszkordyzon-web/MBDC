@@ -25,21 +25,23 @@ st.markdown(
     }
 
     .adc-hero {
-      background: linear-gradient(135deg, #7a0c1e 0%, #C8102E 55%, #e8384f 100%);
+      background: #1b1b1f;
+      border: 1px solid #2c2c31;
+      border-top: 4px solid #E5484D;
       padding: 1.75rem 2rem;
-      border-radius: 16px;
+      border-radius: 12px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 10px 30px rgba(200, 16, 46, 0.35);
+      box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.55);
     }
     .adc-hero h1 {
-      color: white;
+      color: #f2f1f3;
       margin: 0;
       font-weight: 800;
       font-size: 2.1rem;
       letter-spacing: -0.02em;
     }
     .adc-hero p {
-      color: rgba(255, 255, 255, 0.85);
+      color: #9c9aa3;
       margin: 0.35rem 0 0 0;
       font-size: 0.95rem;
     }
@@ -102,8 +104,8 @@ st.markdown(
 
     /* --- Metrics: smaller, uniform, never truncated --- */
     div[data-testid="stMetric"] {
-      background: rgba(200, 16, 46, 0.08);
-      border: 1px solid rgba(200, 16, 46, 0.25);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 10px;
       padding: 0.6rem 0.75rem;
       margin-bottom: 0.5rem;
@@ -124,7 +126,7 @@ st.markdown(
       font-weight: 700;
       margin: 0.25rem 0 0.5rem 0.75rem;
       padding-left: 0.75rem;
-      border-left: 3px solid #C8102E;
+      border-left: 3px solid #E5484D;
     }
 
     /* --- Consistent gap between cards/sections --- */
@@ -135,24 +137,29 @@ st.markdown(
 
     section[data-testid="stSidebar"] .stButton button,
     div.stForm button {
-      background: linear-gradient(135deg, #C8102E, #7a0c1e);
+      background: #E5484D;
       color: white;
       border: none;
       border-radius: 8px;
       font-weight: 600;
+    }
+    section[data-testid="stSidebar"] .stButton button:hover,
+    div.stForm button:hover {
+      background: #c93a3f;
     }
 
     button[data-testid="stTab"] {
       font-size: 1rem;
       font-weight: 700;
       padding: 0.75rem 1.25rem;
+      color: #9c9aa3;
     }
     button[data-testid="stTab"][aria-selected="true"] {
-      color: #f4a4ae;
-      border-bottom-color: #C8102E !important;
+      color: #f2f1f3;
+      border-bottom-color: #E5484D !important;
     }
     div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {
-      background-color: #C8102E;
+      background-color: #E5484D;
     }
     </style>
     """,
