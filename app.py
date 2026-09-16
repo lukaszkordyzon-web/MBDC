@@ -12,7 +12,7 @@ from parsers import (
 import streamlit as st
 
 st.set_page_config(
-    page_title="AutoDataCollector", page_icon="🛰️", layout="wide"
+    page_title="BlastDataHub · PoC", page_icon="💥", layout="wide"
 )
 
 st.markdown(
@@ -42,6 +42,19 @@ st.markdown(
       color: rgba(255, 255, 255, 0.85);
       margin: 0.35rem 0 0 0;
       font-size: 0.95rem;
+    }
+    .adc-poc-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.22);
+      color: white;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      vertical-align: middle;
+      margin-left: 0.6rem;
     }
 
     /* --- Consistent type scale: section (h3) > subsection (h4) --- */
@@ -124,8 +137,8 @@ if "current_project" not in st.session_state:
   st.session_state.current_project = None
 
 # --- SIDEBAR: PROJECT MANAGEMENT ---
-st.sidebar.title("🛰️ AutoDataCollector")
-st.sidebar.caption("Blast & drilling data aggregation")
+st.sidebar.title("💥 BlastDataHub")
+st.sidebar.caption("Proof of Concept · Blast & drilling data aggregation")
 
 with st.sidebar.form("new_proj_form"):
   new_name = st.text_input("Project name")
@@ -157,7 +170,7 @@ if st.session_state.projects:
 st.markdown(
     """
     <div class="adc-hero">
-      <h1>🛰️ AutoDataCollector</h1>
+      <h1>💥 BlastDataHub <span class="adc-poc-badge">PoC</span></h1>
       <p>Aggregate drill plans, MWD reports and detonator logs into one blast database.</p>
     </div>
     """,
