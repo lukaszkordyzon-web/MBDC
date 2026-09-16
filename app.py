@@ -45,16 +45,45 @@ st.markdown(
     }
     .adc-poc-badge {
       display: inline-block;
-      background: rgba(255, 255, 255, 0.22);
-      color: white;
-      padding: 0.15rem 0.6rem;
+      background: #f59e0b;
+      color: #1e1b4b;
+      padding: 0.3rem 0.9rem;
       border-radius: 999px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       vertical-align: middle;
-      margin-left: 0.6rem;
+      margin-left: 0.75rem;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.6);
+      border: 2px solid #fde68a;
+    }
+
+    .adc-poc-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      color: #fde68a;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .adc-sidebar-poc {
+      display: inline-block;
+      background: #f59e0b;
+      color: #1e1b4b;
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
     }
 
     /* --- Consistent type scale: section (h3) > subsection (h4) --- */
@@ -138,7 +167,11 @@ if "current_project" not in st.session_state:
 
 # --- SIDEBAR: PROJECT MANAGEMENT ---
 st.sidebar.title("💥 BlastDataHub")
-st.sidebar.caption("Proof of Concept · Blast & drilling data aggregation")
+st.sidebar.markdown(
+    '<span class="adc-sidebar-poc">⚠️ Proof of Concept</span>',
+    unsafe_allow_html=True,
+)
+st.sidebar.caption("Blast & drilling data aggregation")
 
 with st.sidebar.form("new_proj_form"):
   new_name = st.text_input("Project name")
@@ -170,8 +203,11 @@ if st.session_state.projects:
 st.markdown(
     """
     <div class="adc-hero">
-      <h1>💥 BlastDataHub <span class="adc-poc-badge">PoC</span></h1>
+      <h1>💥 BlastDataHub <span class="adc-poc-badge">Proof of Concept</span></h1>
       <p>Aggregate drill plans, MWD reports and detonator logs into one blast database.</p>
+    </div>
+    <div class="adc-poc-banner">
+      ⚠️ This is a Proof of Concept build — for internal testing and demonstration only, not production data.
     </div>
     """,
     unsafe_allow_html=True,
