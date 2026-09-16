@@ -30,6 +30,7 @@ st.markdown(
       background:
         radial-gradient(900px circle at 6% -12%, rgba(239, 68, 68, 0.14), transparent 55%),
         radial-gradient(700px circle at 100% 0%, rgba(249, 115, 22, 0.09), transparent 50%),
+        radial-gradient(650px circle at 78% 55%, rgba(45, 212, 191, 0.045), transparent 50%),
         radial-gradient(1000px circle at 40% 115%, rgba(168, 85, 247, 0.07), transparent 55%),
         #09090b;
     }
@@ -190,12 +191,17 @@ st.markdown(
       overflow-wrap: break-word;
       line-height: 1.25 !important;
       font-family: 'Manrope', 'Inter', sans-serif;
+      font-variant-numeric: tabular-nums;
     }
-    div[data-testid="stMetricLabel"] {
+    div[data-testid="stMetricLabel"],
+    div[data-testid="stMetricLabel"] * {
       font-size: 0.76rem !important;
       opacity: 0.65;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      white-space: normal !important;
+      overflow-wrap: break-word;
+      text-overflow: clip !important;
     }
 
     .adc-subsection {
@@ -479,7 +485,7 @@ else:
           f"Collar: `{val_x}, {val_y}, {val_z}`  •  Bottom:"
           f" `{val_bx}, {val_by}, {val_bz}`"
       )
-      m1, m2 = st.columns(2)
+      m1, m2 = st.columns([2, 1])
       m1.metric("Length", f"{val_len} m")
       m2.metric("Diameter", f"{val_dia} mm")
       m3, m4 = st.columns(2)
@@ -586,13 +592,13 @@ else:
         face_z = hole_z + np.array(burdens) * np.sin(ang_rad)
 
         fig, ax = plt.subplots(figsize=(5.5, 7.5))
-        fig.patch.set_facecolor("#0f172a")
-        ax.set_facecolor("#1e293b")
+        fig.patch.set_facecolor("#121214")
+        ax.set_facecolor("#18181c")
         ax.tick_params(colors="#e2e8f0")
         ax.xaxis.label.set_color("#e2e8f0")
         ax.yaxis.label.set_color("#e2e8f0")
         for spine in ax.spines.values():
-          spine.set_color("#475569")
+          spine.set_color("#3a3a40")
         ax.plot(
             hole_x,
             hole_z,
@@ -604,7 +610,7 @@ else:
         ax.plot(
             face_x,
             face_z,
-            color="black",
+            color="#e5e5e5",
             linestyle="-",
             linewidth=2.0,
             label="Rock face (Profile)",
@@ -646,10 +652,10 @@ else:
         ax.set_xlabel("Horizontal distance [m]", fontsize=9)
         ax.set_ylabel("Vertical elevation (downward) [m]", fontsize=9)
         ax.set_aspect("equal", adjustable="box")
-        ax.grid(True, linestyle=":", alpha=0.3, color="#475569")
+        ax.grid(True, linestyle=":", alpha=0.3, color="#3a3a40")
         legend = ax.legend(loc="lower right", fontsize=8)
-        legend.get_frame().set_facecolor("#1e293b")
-        legend.get_frame().set_edgecolor("#475569")
+        legend.get_frame().set_facecolor("#18181c")
+        legend.get_frame().set_edgecolor("#3a3a40")
         for text in legend.get_texts():
           text.set_color("#e2e8f0")
         st.pyplot(fig, width=950)
@@ -675,16 +681,16 @@ else:
 
     st.markdown("#### 🗺️ Blast Pattern Plan View")
     fig, ax = plt.subplots(figsize=(6, 5))
-    fig.patch.set_facecolor("#0f172a")
-    ax.set_facecolor("#1e293b")
+    fig.patch.set_facecolor("#121214")
+    ax.set_facecolor("#18181c")
     ax.tick_params(colors="#e2e8f0")
     ax.xaxis.label.set_color("#e2e8f0")
     ax.yaxis.label.set_color("#e2e8f0")
     for spine in ax.spines.values():
-      spine.set_color("#475569")
+      spine.set_color("#3a3a40")
 
     ax.scatter(
-        xs, ys, color="#fbbf24", s=70, edgecolors="#7c3aed", linewidths=1.4, zorder=3
+        xs, ys, color="#fbbf24", s=70, edgecolors="#a855f7", linewidths=1.4, zorder=3
     )
     for x_val, y_val, label in zip(xs, ys, labels):
       ax.annotate(
@@ -699,7 +705,7 @@ else:
     ax.set_xlabel("X [m]", fontsize=9)
     ax.set_ylabel("Y [m]", fontsize=9)
     ax.set_aspect("equal", adjustable="datalim")
-    ax.grid(True, linestyle=":", alpha=0.3, color="#475569")
+    ax.grid(True, linestyle=":", alpha=0.3, color="#3a3a40")
     st.pyplot(fig, width=700)
 
   def build_database_table(design_df, actual_df):
