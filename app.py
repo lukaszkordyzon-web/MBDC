@@ -25,11 +25,11 @@ st.markdown(
     }
 
     .adc-hero {
-      background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #06b6d4 100%);
+      background: linear-gradient(135deg, #7a0c1e 0%, #C8102E 55%, #e8384f 100%);
       padding: 1.75rem 2rem;
       border-radius: 16px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+      box-shadow: 0 10px 30px rgba(200, 16, 46, 0.35);
     }
     .adc-hero h1 {
       color: white;
@@ -102,8 +102,8 @@ st.markdown(
 
     /* --- Metrics: smaller, uniform, never truncated --- */
     div[data-testid="stMetric"] {
-      background: rgba(139, 92, 246, 0.08);
-      border: 1px solid rgba(139, 92, 246, 0.25);
+      background: rgba(200, 16, 46, 0.08);
+      border: 1px solid rgba(200, 16, 46, 0.25);
       border-radius: 10px;
       padding: 0.6rem 0.75rem;
       margin-bottom: 0.5rem;
@@ -124,7 +124,7 @@ st.markdown(
       font-weight: 700;
       margin: 0.25rem 0 0.5rem 0.75rem;
       padding-left: 0.75rem;
-      border-left: 3px solid #8b5cf6;
+      border-left: 3px solid #C8102E;
     }
 
     /* --- Consistent gap between cards/sections --- */
@@ -135,7 +135,7 @@ st.markdown(
 
     section[data-testid="stSidebar"] .stButton button,
     div.stForm button {
-      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      background: linear-gradient(135deg, #C8102E, #7a0c1e);
       color: white;
       border: none;
       border-radius: 8px;
@@ -148,11 +148,11 @@ st.markdown(
       padding: 0.75rem 1.25rem;
     }
     button[data-testid="stTab"][aria-selected="true"] {
-      color: #c4b5fd;
-      border-bottom-color: #8b5cf6 !important;
+      color: #f4a4ae;
+      border-bottom-color: #C8102E !important;
     }
     div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {
-      background-color: #8b5cf6;
+      background-color: #C8102E;
     }
     </style>
     """,
