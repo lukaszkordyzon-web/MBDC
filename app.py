@@ -28,11 +28,11 @@ st.markdown(
     [data-testid="stAppViewContainer"] {
       position: relative;
       background:
-        radial-gradient(900px circle at 6% -12%, rgba(239, 68, 68, 0.14), transparent 55%),
-        radial-gradient(700px circle at 100% 0%, rgba(249, 115, 22, 0.09), transparent 50%),
-        radial-gradient(650px circle at 78% 55%, rgba(45, 212, 191, 0.045), transparent 50%),
-        radial-gradient(1000px circle at 40% 115%, rgba(168, 85, 247, 0.07), transparent 55%),
-        #09090b;
+        radial-gradient(900px circle at 6% -12%, rgba(59, 130, 246, 0.15), transparent 55%),
+        radial-gradient(700px circle at 100% 0%, rgba(99, 102, 241, 0.10), transparent 50%),
+        radial-gradient(650px circle at 78% 55%, rgba(34, 211, 238, 0.06), transparent 50%),
+        radial-gradient(1000px circle at 40% 115%, rgba(139, 92, 246, 0.07), transparent 55%),
+        #05070d;
     }
     [data-testid="stAppViewContainer"]::before {
       content: "";
@@ -64,8 +64,8 @@ st.markdown(
       margin-bottom: 1.5rem;
       border: 1px solid transparent;
       background:
-        linear-gradient(#141316, #141316) padding-box,
-        linear-gradient(120deg, rgba(239, 68, 68, 0.65), rgba(249, 115, 22, 0.4) 50%, rgba(168, 85, 247, 0.35)) border-box;
+        linear-gradient(#12141c, #12141c) padding-box,
+        linear-gradient(120deg, rgba(59, 130, 246, 0.65), rgba(99, 102, 241, 0.4) 50%, rgba(34, 211, 238, 0.35)) border-box;
       backdrop-filter: blur(10px);
       box-shadow: 0 28px 56px -24px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
@@ -76,7 +76,7 @@ st.markdown(
       right: -70px;
       width: 340px;
       height: 340px;
-      background: radial-gradient(circle, rgba(249, 115, 22, 0.45), rgba(239, 68, 68, 0.25) 45%, transparent 72%);
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.45), rgba(59, 130, 246, 0.25) 45%, transparent 72%);
       filter: blur(20px);
       pointer-events: none;
     }
@@ -87,7 +87,7 @@ st.markdown(
       left: -60px;
       width: 260px;
       height: 260px;
-      background: radial-gradient(circle, rgba(168, 85, 247, 0.28), transparent 70%);
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.25), transparent 70%);
       filter: blur(24px);
       pointer-events: none;
     }
@@ -104,7 +104,7 @@ st.markdown(
       gap: 0.6rem;
     }
     .adc-title-gradient {
-      background: linear-gradient(120deg, #ffffff 8%, #fecaca 42%, #fdba74 75%, #fde68a 100%);
+      background: linear-gradient(120deg, #ffffff 8%, #bfdbfe 42%, #a5b4fc 75%, #67e8f9 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -119,7 +119,7 @@ st.markdown(
     }
     .adc-poc-badge {
       display: inline-block;
-      background: linear-gradient(120deg, #fbbf24, #f97316);
+      background: linear-gradient(120deg, #fbbf24, #eab308);
       color: #1a1206;
       padding: 0.3rem 0.85rem;
       border-radius: 999px;
@@ -128,7 +128,7 @@ st.markdown(
       letter-spacing: 0.05em;
       text-transform: uppercase;
       vertical-align: middle;
-      box-shadow: 0 4px 16px -2px rgba(249, 115, 22, 0.55);
+      box-shadow: 0 4px 16px -2px rgba(234, 179, 8, 0.5);
     }
 
     .adc-poc-banner {
@@ -210,7 +210,7 @@ st.markdown(
       margin: 0.25rem 0 0.5rem 0.75rem;
       padding-left: 0.75rem;
       border-left: 3px solid transparent;
-      border-image: linear-gradient(180deg, #ef4444, #f97316) 1;
+      border-image: linear-gradient(180deg, #3b82f6, #6366f1) 1;
     }
 
     /* --- Cards: st.container(border=True) renders as a stVerticalBlock
@@ -226,27 +226,27 @@ st.markdown(
       transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
     div[data-testid="stLayoutWrapper"] > div[data-testid="stVerticalBlock"]:hover {
-      border-color: rgba(249, 115, 22, 0.4) !important;
-      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.08), 0 16px 40px -24px rgba(239, 68, 68, 0.5);
+      border-color: rgba(99, 102, 241, 0.4) !important;
+      box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08), 0 16px 40px -24px rgba(59, 130, 246, 0.5);
     }
 
-    /* --- Primary buttons: fire gradient, tactile, glowing on hover --- */
+    /* --- Primary buttons: navy-aurora gradient, tactile, glowing on hover --- */
     section[data-testid="stSidebar"] .stButton button,
     div.stForm button {
-      background: linear-gradient(120deg, #ef4444, #f97316);
+      background: linear-gradient(120deg, #3b82f6, #6366f1);
       color: white;
       border: none;
       border-radius: 10px;
       font-weight: 600;
       padding: 0.5rem 1.1rem;
-      box-shadow: 0 4px 14px -4px rgba(239, 68, 68, 0.55);
+      box-shadow: 0 4px 14px -4px rgba(59, 130, 246, 0.55);
       transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
     }
     section[data-testid="stSidebar"] .stButton button:hover,
     div.stForm button:hover {
       filter: brightness(1.08);
       transform: translateY(-1px);
-      box-shadow: 0 10px 26px -6px rgba(249, 115, 22, 0.6);
+      box-shadow: 0 10px 26px -6px rgba(99, 102, 241, 0.6);
     }
     section[data-testid="stSidebar"] .stButton button:active,
     div.stForm button:active {
@@ -256,8 +256,8 @@ st.markdown(
     /* --- Secondary / download buttons: quiet ghost style, not a solid block --- */
     .stDownloadButton button {
       background: transparent;
-      color: #fdba74;
-      border: 1px solid rgba(249, 115, 22, 0.45);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.45);
       border-radius: 10px;
       font-weight: 600;
       padding: 0.45rem 1rem;
@@ -265,17 +265,17 @@ st.markdown(
       transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
     }
     .stDownloadButton button:hover {
-      background: rgba(249, 115, 22, 0.12);
-      border-color: #f97316;
+      background: rgba(59, 130, 246, 0.12);
+      border-color: #3b82f6;
       color: #ffffff;
     }
 
-    /* --- Inputs: rounded with a warm gradient-toned focus ring --- */
+    /* --- Inputs: rounded with a navy gradient-toned focus ring --- */
     div[data-baseweb="input"], div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
       border-radius: 10px !important;
     }
     div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within {
-      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4) !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4) !important;
     }
 
     /* --- Tabs as a modern segmented control instead of an underline --- */
@@ -308,8 +308,8 @@ st.markdown(
     }
     button[data-testid="stTab"][aria-selected="true"] {
       color: #ffffff;
-      background: linear-gradient(120deg, #ef4444, #f97316);
-      box-shadow: 0 4px 14px -4px rgba(239, 68, 68, 0.55);
+      background: linear-gradient(120deg, #3b82f6, #6366f1);
+      box-shadow: 0 4px 14px -4px rgba(59, 130, 246, 0.55);
     }
 
     /* --- Thin, dark scrollbar for a tidier feel --- */
