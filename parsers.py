@@ -17,22 +17,29 @@ def parse_iredes_xml(xml_bytes):
     generated_by = gen_by_match.group(1).strip() if gen_by_match else "QuarryX"
 
     data = xmltodict.parse(text)
-    drp = data.get("DRPPlan", {})
-    gen_head = drp.get("IR:GenHead", {})
-    drill_plan = drp.get("DrillPlan", {})
-    opt_data = drill_plan.get("EquipmentData", {}).get("OptionData", {})
+    # xmltodict maps an empty/self-closing element (e.g. <IR:GenHead/>) to
+    # None rather than {} — since the key still exists, dict.get(key, {})
+    # returns that None instead of the default, so every lookup below
+    # falls back explicitly with `or {}` instead of relying on .get's
+    # own default.
+    drp = data.get("DRPPlan") or {}
+    gen_head = drp.get("IR:GenHead") or {}
+    drill_plan = drp.get("DrillPlan") or {}
+    equipment_data = drill_plan.get("EquipmentData") or {}
+    opt_data = equipment_data.get("OptionData") or {}
 
-    holes = drill_plan.get("Hole", [])
+    holes = drill_plan.get("Hole") or []
     if isinstance(holes, dict):
       holes = [holes]
 
     extracted_holes = []
     for h in holes:
-      sp = h.get("StartPoint", {})
-      ep = h.get("EndPoint", {})
+      h = h or {}
+      sp = h.get("StartPoint") or {}
+      ep = h.get("EndPoint") or {}
       extracted_holes.append({
           "Hole": str(h.get("HoleName", "")).strip(),
-          "BitDia_XML_mm": float(h.get("DrillBitDia", 100)),
+          "BitDia_XML_mm": float(h.get("DrillBitDia") or 100),
           "TypeOfHole": str(h.get("TypeOfHole", "")),
           "XML_StartX": (
               float(sp.get("IR:PointX"))
@@ -77,11 +84,11 @@ def parse_iredes_xml(xml_bytes):
         "project": drp.get("IR:Project", "N/A"),
         "work_order": drp.get("IR:WorkOrder", "N/A"),
         "holes_count": int(
-            drill_plan.get("NumberOfHoles", len(extracted_holes))
+            drill_plan.get("NumberOfHoles") or len(extracted_holes)
         ),
-        "first_row_burden": float(opt_data.get("FirstRowBurden", 0)),
-        "spacing": float(opt_data.get("Spacing", 0)),
-        "cubic_mass_m3": float(opt_data.get("CubicMass", 0)),
+        "first_row_burden": float(opt_data.get("FirstRowBurden") or 0),
+        "spacing": float(opt_data.get("Spacing") or 0),
+        "cubic_mass_m3": float(opt_data.get("CubicMass") or 0),
         "holes": extracted_holes,
     }
   except Exception as e:
