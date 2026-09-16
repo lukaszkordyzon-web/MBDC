@@ -178,22 +178,23 @@ st.markdown(
       border-left: 3px solid #E5484D;
     }
 
-    /* --- Cards: soft elevation, generous radius, subtle hover --- */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* --- Cards: st.container(border=True) renders as a stVerticalBlock
+           wrapped in a stLayoutWrapper in this Streamlit version --- */
+    div[data-testid="stLayoutWrapper"] > div[data-testid="stVerticalBlock"] {
       border-radius: 18px !important;
-      margin-bottom: 1.1rem;
-    }
-    div[data-testid="stVerticalBlockBorderWrapper"] > div {
-      border-radius: 18px !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
-      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.09) !important;
+      background: rgba(255, 255, 255, 0.02) !important;
+      padding: 1.15rem 1.35rem !important;
+      margin-bottom: 1.1rem !important;
       transition: border-color 0.2s ease;
     }
+    div[data-testid="stLayoutWrapper"] > div[data-testid="stVerticalBlock"]:hover {
+      border-color: rgba(255, 255, 255, 0.16) !important;
+    }
 
-    /* --- Buttons: rounded, tactile, with a soft lift on hover --- */
+    /* --- Primary buttons: rounded, tactile, with a soft lift on hover --- */
     section[data-testid="stSidebar"] .stButton button,
-    div.stForm button,
-    .stDownloadButton button {
+    div.stForm button {
       background: #E5484D;
       color: white;
       border: none;
@@ -204,8 +205,7 @@ st.markdown(
       transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
     section[data-testid="stSidebar"] .stButton button:hover,
-    div.stForm button:hover,
-    .stDownloadButton button:hover {
+    div.stForm button:hover {
       background: #ff5b5f;
       transform: translateY(-1px);
       box-shadow: 0 8px 20px -6px rgba(229, 72, 77, 0.55);
@@ -213,6 +213,23 @@ st.markdown(
     section[data-testid="stSidebar"] .stButton button:active,
     div.stForm button:active {
       transform: translateY(0);
+    }
+
+    /* --- Secondary / download buttons: quiet ghost style, not a solid block --- */
+    .stDownloadButton button {
+      background: transparent;
+      color: #ff9a9e;
+      border: 1px solid rgba(229, 72, 77, 0.45);
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 0.45rem 1rem;
+      box-shadow: none;
+      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    }
+    .stDownloadButton button:hover {
+      background: rgba(229, 72, 77, 0.12);
+      border-color: #E5484D;
+      color: #ffffff;
     }
 
     /* --- Inputs: rounded with a red focus ring --- */
@@ -973,7 +990,7 @@ else:
         with col_export:
           csv_bytes = master_df.to_csv(index=False).encode("utf-8")
           st.download_button(
-              label="📥 Export Full Database with JSON (.CSV)",
+              label="📥 Export CSV",
               data=csv_bytes,
               file_name=f"{curr_proj}_Master_Blast_DB.csv",
               mime="text/csv",
